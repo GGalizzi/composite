@@ -1,76 +1,54 @@
 use std::collections::HashMap;
-use std::ops::Index;
+use std::ops::{Index, IndexMut};
 
 type Entity = u32;
 
 macro_rules! components {
     (
-        $([$access:ident, $mutaccess:ident, $ty:ty]),+
+        $([$access:ident, $access_mut:ident, $ty:ty]),+
             ) => {
         struct ComponentData {
-            $(
-                $access: HashMap<Entity, $ty>,
-                )+
+            components: HashMap<Entity, EntityData>,
         }
 
         impl ComponentData {
             pub fn new() -> ComponentData {
                 ComponentData {
-                    $(
-                        $access: HashMap::new(),
-                        )+
+                    components: HashMap::new(),
                 }
             }
 
-            pub fn get(&self, ent: &Entity) -> EntityData {
-                EntityData::new(ent, self)
+            pub fn get(&self, ent: &Entity) -> &EntityData {
+                self.components.get(ent).expect("no entity")
             }
 
-            pub fn get_mut(&mut self, ent: &Entity) -> EntityDataMut {
-                EntityDataMut::new(ent, self)
+            pub fn get_mut(&mut self, ent: &Entity) -> &mut EntityData {
+                self.components.get_mut(ent).expect("No entity")
             }
         }
 
-        struct EntityData<'a> {
+        struct EntityData {
             $(
-                $access: Option<&'a $ty>,
+                pub $access: Option<$ty>,
                 )+
         }
 
-        impl <'a> EntityData<'a> {
-            pub fn new(idx: &Entity, data: &'a ComponentData) -> EntityData<'a> {
+        impl EntityData {
+            pub fn new() -> EntityData {
                 EntityData {
                     $(
-                        $access: data.$access.get(idx),
+                        $access: None,
                         )+
                 }
             }
 
             $(
                 pub fn $access(&self) -> &$ty {
-                    self.$access.expect("no component")
+                    self.$access.as_ref().unwrap()
                 }
-                )+
-        }
 
-        struct EntityDataMut<'a> {
-            $(
-                $access: Option<&'a mut $ty>,
-                )+
-        }
-
-        impl<'a> EntityDataMut<'a> {
-            pub fn new(idx: &Entity, data: &'a mut ComponentData) -> EntityDataMut<'a> {
-                EntityDataMut {
-                    $(
-                        $access: data.$access.get_mut(idx),
-                        )+
-                }
-            }
-
-            $(
-                pub fn $access(self) -> &'a mut $ty {
-                    self.$access.expect("no component")
+                pub fn $access_mut(&mut self) -> &mut $ty {
+                    self.$access.as_mut().unwrap()
                 }
                 )+
         }
@@ -80,13 +58,19 @@ macro_rules! components {
 components!([position, position_mut, Position],
             [glyph, glyph_mut, Glyph]);
 
-/*impl<'a> Index<Entity> for ComponentData {
-    type Output = EntityData<'a>;
+impl Index<Entity> for ComponentData {
+    type Output = EntityData;
 
-    fn index(&self, index: Entity) -> &'a EntityData<'a> {
-        &self.get(index)
+    fn index(&self, index: Entity) -> &EntityData {
+        &self.get(&index)
     }
-}*/
+}
+
+impl IndexMut<Entity> for ComponentData {
+    fn index_mut(&mut self, index: Entity) -> &mut EntityData {
+        self.get_mut(&index)
+    }
+}
 
 #[derive(Debug)]
 struct Position {
@@ -99,18 +83,20 @@ struct Glyph {
 }
 
 trait Component {
-    fn add_to(self, Entity, &mut ComponentData);
+    fn add_to(self, ent: Entity, data: &mut ComponentData);
 }
 
 impl Component for Position {
     fn add_to(self, ent: Entity, data: &mut ComponentData) {
-        data.position.insert(ent, self);
+        let ent_data = data.components.get_mut(&ent).expect("no entity");
+        ent_data.position = Some(self);
     }
 }
 
 impl Component for Glyph {
     fn add_to(self, ent: Entity, data: &mut ComponentData) {
-        data.glyph.insert(ent, self);
+        let ent_data = data.components.get_mut(&ent).expect("no entity");
+        ent_data.glyph = Some(self)
     }
 }
 
@@ -130,6 +116,7 @@ impl EntityManager {
     pub fn new_entity(&mut self) -> Entity {
         let ent = self.entities.len() as Entity;
         self.entities.push(ent);
+        self.data.components.insert(ent, EntityData::new());
         ent
     }
 
@@ -144,8 +131,7 @@ fn main() {
     let ent = manager.new_entity();
     manager.add_component_to(ent, Position{x:1, y:2});
 
-    //println!("id: {:?}, pos: {:?}", ent, manager.data.position());
-    println!("pos: {:?}", manager.data.get(&ent).position());
-    manager.data.get_mut(&ent).position().x += 5;
-    println!("pos: {:?}", manager.data.get(&ent).position());
+    println!("pos: {:?}", manager.data[ent].position());
+    manager.data[ent].position_mut().x += 5;
+    println!("pos: {:?}", manager.data[ent].position());
 }
