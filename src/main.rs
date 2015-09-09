@@ -52,6 +52,16 @@ macro_rules! components {
                 }
                 )+
         }
+
+        $(
+            impl Component for $ty {
+                fn add_to(self, ent: Entity, data: &mut ComponentData) {
+                    let ent_data = data.components.get_mut(&ent).expect("no entity");
+                    ent_data.$access = Some(self);
+                }
+            }
+            )+
+
     }
 }
 
@@ -84,20 +94,6 @@ struct Glyph {
 
 trait Component {
     fn add_to(self, ent: Entity, data: &mut ComponentData);
-}
-
-impl Component for Position {
-    fn add_to(self, ent: Entity, data: &mut ComponentData) {
-        let ent_data = data.components.get_mut(&ent).expect("no entity");
-        ent_data.position = Some(self);
-    }
-}
-
-impl Component for Glyph {
-    fn add_to(self, ent: Entity, data: &mut ComponentData) {
-        let ent_data = data.components.get_mut(&ent).expect("no entity");
-        ent_data.glyph = Some(self)
-    }
 }
 
 struct EntityManager {
