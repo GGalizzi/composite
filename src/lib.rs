@@ -1,12 +1,26 @@
+//! An Entity Component System for game development..
+//!
+//! Stuff here.
+//!
+#![allow(dead_code)]
 use std::collections::HashMap;
 use std::ops::{Index, IndexMut};
 
-type Entity = u32;
+pub mod component_presence;
+use component_presence::ComponentPresence;
+use component_presence::ComponentPresence::*;
 
+/// Type Entity is simply an ID used as indexes.
+pub type Entity = u32;
+
+/// The components macro defines all the structs and traits that manage
+/// the component part of the ECS.
 macro_rules! components {
     (
-        $([$access:ident, $access_mut:ident, $ty:ty]),+
+        $([$access:ident, $ty:ty]),+
             ) => {
+
+        /// ComponentData 
         struct ComponentData {
             components: HashMap<Entity, EntityData>,
         }
@@ -27,9 +41,10 @@ macro_rules! components {
             }
         }
 
+        /// EntityData
         struct EntityData {
             $(
-                pub $access: Option<$ty>,
+                pub $access: ComponentPresence<$ty>,
                 )+
         }
 
@@ -41,23 +56,13 @@ macro_rules! components {
                         )+
                 }
             }
-
-            $(
-                pub fn $access(&self) -> &$ty {
-                    self.$access.as_ref().unwrap()
-                }
-
-                pub fn $access_mut(&mut self) -> &mut $ty {
-                    self.$access.as_mut().unwrap()
-                }
-                )+
         }
 
         $(
             impl Component for $ty {
                 fn add_to(self, ent: Entity, data: &mut ComponentData) {
                     let ent_data = data.components.get_mut(&ent).expect("no entity");
-                    ent_data.$access = Some(self);
+                    ent_data.$access = Comp(self);
                 }
             }
             )+
@@ -65,8 +70,8 @@ macro_rules! components {
     }
 }
 
-components!([position, position_mut, Position],
-            [glyph, glyph_mut, Glyph]);
+components!([position, Position],
+            [glyph, Glyph]);
 
 impl Index<Entity> for ComponentData {
     type Output = EntityData;
@@ -82,20 +87,31 @@ impl IndexMut<Entity> for ComponentData {
     }
 }
 
+/// This trait marks a struct as a component.
+///
+/// It should implement the `add_to` function, which is automatically generated
+/// by the `components` macro.
+trait Component {
+    fn add_to(self, ent: Entity, data: &mut ComponentData);
+}
+
+
+/// Positio
 #[derive(Debug)]
 struct Position {
     x: i32,
     y: i32,
 }
 
+/// Glyph
 struct Glyph {
     ch: char,
 }
 
-trait Component {
-    fn add_to(self, ent: Entity, data: &mut ComponentData);
-}
-
+/// The `EntityManager` type manages all the entities.
+///
+/// It is in charge of creating and destroying entities.
+/// It also takes care of adding or removing components, through the `ComponentData` it contains.
 struct EntityManager {
     entities: Vec<Entity>,
     data: ComponentData,
@@ -120,14 +136,16 @@ impl EntityManager {
         c.add_to(e, &mut self.data);
     }
 }
-
+/*
 fn main() {
     println!("Hello, world!");
     let mut manager = EntityManager::new();
     let ent = manager.new_entity();
     manager.add_component_to(ent, Position{x:1, y:2});
 
-    println!("pos: {:?}", manager.data[ent].position());
-    manager.data[ent].position_mut().x += 5;
-    println!("pos: {:?}", manager.data[ent].position());
+    println!("pos: {:?}", manager.data[ent].position.x);
+    manager.data[ent].position.x += 5;
+    println!("pos: {:?}", manager.data[ent].position.x);
+    println!("has glyph? {:?}", manager.data[ent].glyph.has_it());
 }
+*/
