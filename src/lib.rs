@@ -36,27 +36,35 @@ macro_rules! components {
                         )+
                 }
             }
+
+
         }
 
         impl EntityDataHolder for EntityData {
             fn new() -> Self {
                 EntityData::new_empty()
             }
+
+            fn get_families(&self) -> Vec<&'static str> {
+                let v: Vec<&str> = Vec::new();
+                /*
+                for family in families {
+                if family.matches(self.components) {
+                v.push(family.as_str())
+            }
+            }*/
+                v
+            }
         }
 
         $(
             impl Component<EntityData> for $ty {
                 fn add_to(self, ent: Entity, data: &mut ComponentData<EntityData>) {
-                    let ent_data = data.components.get_mut(&ent).expect("no entity");
+                    let ent_data: &mut EntityData = data.components.get_mut(&ent).expect("no entity");
                     ent_data.$access = Comp(self);
                 }
             }
             )+
-
-            
-
-
-
     }
 }
 
@@ -80,11 +88,14 @@ macro_rules! components {
 /// You'll access these fields directly when indexing the `data` field of the `EntityManager`
 pub trait EntityDataHolder {
     fn new() -> Self;
+    fn get_families(&self) -> Vec<&'static str>;
 }
 
-/// ComponentData 
+/// ComponentData knows which entities have which components.
 pub struct ComponentData<D: EntityDataHolder> {
+    /// components holds the components owned by a certain entity.
     pub components: HashMap<Entity, D>,
+    pub families: HashMap<String, Vec<Entity>>,
 }
 
 /// This trait marks a struct as a component. (Automatically handled by macro `components!`)
@@ -101,6 +112,7 @@ impl<D: EntityDataHolder> ComponentData<D> {
     pub fn new() -> ComponentData<D> {
         ComponentData {
             components: HashMap::new(),
+            families: HashMap::new(),
         }
     }
 
@@ -196,6 +208,11 @@ impl<'a, D: EntityDataHolder, C: Component<D>> ComponentAdder<'a, D,C> {
         }
     }
     pub fn to(self, ent: Entity) {
+        let families = self.data[ent].get_families();
+        for family in families {
+            println!("{:?}asd", family);
+            //self.data.add_family_relation(family, ent);
+        }
         self.component.add_to(ent, self.data);
     }
 }
