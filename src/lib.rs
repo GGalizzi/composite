@@ -104,12 +104,12 @@ impl<D: EntityDataHolder> ComponentData<D> {
         }
     }
 
-    pub fn get(&self, ent: &Entity) -> &D {
-        self.components.get(ent).expect("no entity")
+    pub fn get(&self, ent: &Entity) -> Option<&D> {
+        self.components.get(ent)
     }
 
-    pub fn get_mut(&mut self, ent: &Entity) -> &mut D {
-        self.components.get_mut(ent).expect("No entity")
+    pub fn get_mut(&mut self, ent: &Entity) -> Option<&mut D> {
+        self.components.get_mut(ent)
     }
 
     pub fn create_component_data_for(&mut self, ent: Entity) {
@@ -121,13 +121,13 @@ impl<D: EntityDataHolder> Index<Entity> for ComponentData<D> {
     type Output = D;
 
     fn index(&self, index: Entity) -> &D {
-        &self.get(&index)
+        &self.components.get(&index).expect("no entity")
     }
 }
 
 impl<D: EntityDataHolder> IndexMut<Entity> for ComponentData<D> {
     fn index_mut(&mut self, index: Entity) -> &mut D {
-        self.get_mut(&index)
+        self.components.get_mut(&index).expect("no entity")
     }
 }
 
@@ -169,9 +169,34 @@ impl<D: EntityDataHolder> EntityManager<D> {
         ent
     }
 
+    pub fn add_component<C: Component<D>>(&mut self, comp: C) -> ComponentAdder<D, C> {
+        ComponentAdder::new(comp, &mut self.data)
+    }
+
     /// Adds the specified component to the entity.
     pub fn add_component_to<C: Component<D>>(&mut self, e: Entity, c: C) {
         c.add_to(e, &mut self.data);
+    }
+}
+
+/// Used by `EntityManager` to add components to an Entity.
+///
+/// An object of this type is obtained by calling `add_component` from an EntityManager
+pub struct ComponentAdder<'a, D: 'a + EntityDataHolder, C: Component<D>> {
+    data: &'a mut ComponentData<D>,
+    component: C,
+}
+
+impl<'a, D: EntityDataHolder, C: Component<D>> ComponentAdder<'a, D,C> {
+    
+    pub fn new(comp: C, data: &mut ComponentData<D>) -> ComponentAdder<D,C> {
+        ComponentAdder {
+            data: data,
+            component: comp,
+        }
+    }
+    pub fn to(self, ent: Entity) {
+        self.component.add_to(ent, self.data);
     }
 }
 
