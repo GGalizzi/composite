@@ -1,7 +1,5 @@
 //! An Entity Component System for game development..
 //!
-//! Stuff here.
-//!
 #![allow(dead_code)]
 use std::collections::HashMap;
 use std::ops::{Index, IndexMut};
@@ -13,16 +11,26 @@ use component_presence::ComponentPresence::*;
 /// Type Entity is simply an ID used as indexes.
 pub type Entity = u32;
 
+
 /// The components macro defines all the structs and traits that manage
 /// the component part of the ECS.
+#[macro_export]
 macro_rules! components {
     (
         $([$access:ident, $ty:ty]),+
             ) => {
 
         /// ComponentData 
-        struct ComponentData {
+        pub struct ComponentData {
             components: HashMap<Entity, EntityData>,
+        }
+
+        /// This trait marks a struct as a component.
+        ///
+        /// It should implement the `add_to` function, which is automatically generated
+        /// by the `components` macro.
+        pub trait Component {
+            fn add_to(self, ent: Entity, data: &mut ComponentData);
         }
 
         impl ComponentData {
@@ -42,7 +50,7 @@ macro_rules! components {
         }
 
         /// EntityData
-        struct EntityData {
+        pub struct EntityData {
             $(
                 pub $access: ComponentPresence<$ty>,
                 )+
@@ -67,85 +75,63 @@ macro_rules! components {
             }
             )+
 
-    }
-}
+            
+            impl Index<Entity> for ComponentData {
+                type Output = EntityData;
 
-components!([position, Position],
-            [glyph, Glyph]);
+                fn index(&self, index: Entity) -> &EntityData {
+                    &self.get(&index)
+                }
+            }
 
-impl Index<Entity> for ComponentData {
-    type Output = EntityData;
-
-    fn index(&self, index: Entity) -> &EntityData {
-        &self.get(&index)
-    }
-}
-
-impl IndexMut<Entity> for ComponentData {
-    fn index_mut(&mut self, index: Entity) -> &mut EntityData {
-        self.get_mut(&index)
-    }
-}
-
-/// This trait marks a struct as a component.
-///
-/// It should implement the `add_to` function, which is automatically generated
-/// by the `components` macro.
-trait Component {
-    fn add_to(self, ent: Entity, data: &mut ComponentData);
-}
+        impl IndexMut<Entity> for ComponentData {
+            fn index_mut(&mut self, index: Entity) -> &mut EntityData {
+                self.get_mut(&index)
+            }
+        }
 
 
-/// Positio
-#[derive(Debug)]
-struct Position {
-    x: i32,
-    y: i32,
-}
+        /// The `EntityManager` type manages all the entities.
+        ///
+        /// It is in charge of creating and destroying entities.
+        /// It also takes care of adding or removing components, through the `ComponentData` it contains.
+        pub struct EntityManager {
+            entities: Vec<Entity>,
+            data: ComponentData,
+        }
 
-/// Glyph
-struct Glyph {
-    ch: char,
-}
+        impl EntityManager {
+            pub fn new() -> EntityManager {
+                EntityManager{
+                    entities: vec!(),
+                    data: ComponentData::new(),
+                }
+            }
 
-/// The `EntityManager` type manages all the entities.
-///
-/// It is in charge of creating and destroying entities.
-/// It also takes care of adding or removing components, through the `ComponentData` it contains.
-struct EntityManager {
-    entities: Vec<Entity>,
-    data: ComponentData,
-}
+            pub fn new_entity(&mut self) -> Entity {
+                let ent = self.entities.len() as Entity;
+                self.entities.push(ent);
+                self.data.components.insert(ent, EntityData::new());
+                ent
+            }
 
-impl EntityManager {
-    pub fn new() -> EntityManager {
-        EntityManager{
-            entities: vec!(),
-            data: ComponentData::new(),
+            pub fn add_component_to<C: Component>(&mut self, e: Entity, c: C) {
+                c.add_to(e, &mut self.data);
+            }
         }
     }
-
-    pub fn new_entity(&mut self) -> Entity {
-        let ent = self.entities.len() as Entity;
-        self.entities.push(ent);
-        self.data.components.insert(ent, EntityData::new());
-        ent
-    }
-
-    pub fn add_component_to<C: Component>(&mut self, e: Entity, c: C) {
-        c.add_to(e, &mut self.data);
-    }
 }
+
 /*
 fn main() {
-    println!("Hello, world!");
-    let mut manager = EntityManager::new();
-    let ent = manager.new_entity();
-    manager.add_component_to(ent, Position{x:1, y:2});
+println!("Hello, world!");
+let mut manager = EntityManager::new();
+let ent = manager.new_entity();
+manager.add_component_to(ent, Position{x:1, y:2});
 
-    println!("pos: {:?}", manager.data[ent].position.x);
-    manager.data[ent].position.x += 5;
-    println!("pos: {:?}", manager.data[ent].position.x);
-    println!("has glyph? {:?}", manager.data[ent].glyph.has_it());
+println!("pos: {:?}", manager.data[ent].position.x);
+manager.data[ent].position.x += 5;
+println!("pos: {:?}", manager.data[ent].position.x);
+println!("has glyph? {:?}", manager.data[ent].glyph.has_it());
 }
 */
