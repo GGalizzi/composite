@@ -5,6 +5,9 @@ use std::collections::HashMap;
 use std::ops::{Index, IndexMut};
 
 pub mod component_presence;
+pub mod family;
+
+use family::{FamilyDataHolder, FamilyMap};
 
 /// Type Entity is simply an ID used as indexes.
 pub type Entity = u32;
@@ -21,8 +24,10 @@ macro_rules! components {
         use $crate::component_presence::ComponentPresence;
         use $crate::component_presence::ComponentPresence::*;
         use $crate::{EntityDataHolder, Component, Entity, ComponentData};
+        use $crate::family::{FamilyMap};
         
         pub struct EntityData {
+            pub components: Vec<&'static str>,
             $(
                 pub $access: ComponentPresence<$ty>,
                 )+
@@ -31,13 +36,12 @@ macro_rules! components {
         impl EntityData {
             pub fn new_empty() -> EntityData {
                 EntityData {
+                    components: Vec::new(),
                     $(
                         $access: None,
                         )+
                 }
             }
-
-
         }
 
         impl EntityDataHolder for EntityData {
@@ -45,14 +49,13 @@ macro_rules! components {
                 EntityData::new_empty()
             }
 
-            fn get_families(&self) -> Vec<&'static str> {
-                let v: Vec<&str> = Vec::new();
-                /*
-                for family in families {
-                if family.matches(self.components) {
-                v.push(family.as_str())
-            }
-            }*/
+            fn match_families(&self, families: &FamilyMap) -> Vec<&'static str> {
+                let mut v: Vec<&str> = vec!();
+                for (family, tuple) in families {
+                    if $crate::family::matcher(tuple, &self.components) {
+                        v.push(family)
+                    }
+                }
                 v
             }
         }
@@ -61,6 +64,7 @@ macro_rules! components {
             impl Component<EntityData> for $ty {
                 fn add_to(self, ent: Entity, data: &mut ComponentData<EntityData>) {
                     let ent_data: &mut EntityData = data.components.get_mut(&ent).expect("no entity");
+                    ent_data.components.push(stringify!($access));
                     ent_data.$access = Comp(self);
                 }
             }
@@ -88,14 +92,16 @@ macro_rules! components {
 /// You'll access these fields directly when indexing the `data` field of the `EntityManager`
 pub trait EntityDataHolder {
     fn new() -> Self;
-    fn get_families(&self) -> Vec<&'static str>;
+
+    /// Takes a map of all the defined families,
+    /// and returns the families that match this entity.
+    fn match_families(&self, &FamilyMap) -> Vec<&'static str>;
 }
 
 /// ComponentData knows which entities have which components.
 pub struct ComponentData<D: EntityDataHolder> {
     /// components holds the components owned by a certain entity.
     pub components: HashMap<Entity, D>,
-    pub families: HashMap<String, Vec<Entity>>,
 }
 
 /// This trait marks a struct as a component. (Automatically handled by macro `components!`)
@@ -112,7 +118,6 @@ impl<D: EntityDataHolder> ComponentData<D> {
     pub fn new() -> ComponentData<D> {
         ComponentData {
             components: HashMap::new(),
-            families: HashMap::new(),
         }
     }
 
@@ -157,18 +162,23 @@ impl<D: EntityDataHolder> IndexMut<Entity> for ComponentData<D> {
 /// let ent = manager.new_entity();
 /// manager.add_component_to(ent, Position{x: 1, y: 2});
 /// ```
-pub struct EntityManager<D: EntityDataHolder> {
+pub struct EntityManager<D: EntityDataHolder, F: FamilyDataHolder> {
     entities: Vec<Entity>,
     pub data: ComponentData<D>,
+    families: F,
 }
 
-impl<D: EntityDataHolder> EntityManager<D> {
+impl<D: EntityDataHolder, F: FamilyDataHolder> EntityManager<D, F> {
 
     /// Creates a new EntityManager
-    pub fn new() -> EntityManager<D> {
+    pub fn new() -> EntityManager<D, F> {
         EntityManager{
             entities: vec!(),
             data: ComponentData::new(),
+
+            /// Contains a list of all defined families, along with
+            /// its requirements.
+            families: F::new(),
         }
     }
 
@@ -182,7 +192,7 @@ impl<D: EntityDataHolder> EntityManager<D> {
     }
 
     pub fn add_component<C: Component<D>>(&mut self, comp: C) -> ComponentAdder<D, C> {
-        ComponentAdder::new(comp, &mut self.data)
+        ComponentAdder::new(comp, &mut self.data, self.families.all_families())
     }
 
     /// Adds the specified component to the entity.
@@ -196,24 +206,29 @@ impl<D: EntityDataHolder> EntityManager<D> {
 /// An object of this type is obtained by calling `add_component` from an EntityManager
 pub struct ComponentAdder<'a, D: 'a + EntityDataHolder, C: Component<D>> {
     data: &'a mut ComponentData<D>,
+    families: &'a FamilyMap,
     component: C,
 }
 
 impl<'a, D: EntityDataHolder, C: Component<D>> ComponentAdder<'a, D,C> {
     
-    pub fn new(comp: C, data: &mut ComponentData<D>) -> ComponentAdder<D,C> {
+    pub fn new(comp: C, data: &'a mut ComponentData<D>, families: &'a FamilyMap) -> ComponentAdder<'a, D,C> {
         ComponentAdder {
             data: data,
             component: comp,
+            families: families,
         }
     }
     pub fn to(self, ent: Entity) {
-        let families = self.data[ent].get_families();
+        self.component.add_to(ent, self.data);
+        
+        let mut families = self.data[ent].match_families(self.families);
+        families.sort();
+        families.dedup();
         for family in families {
-            println!("{:?}asd", family);
+            println!("{:?}", family);
             //self.data.add_family_relation(family, ent);
         }
-        self.component.add_to(ent, self.data);
     }
 }
 
