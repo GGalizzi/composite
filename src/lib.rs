@@ -165,6 +165,7 @@ impl<D: EntityDataHolder> IndexMut<Entity> for ComponentData<D> {
 pub struct EntityManager<D: EntityDataHolder, F: FamilyDataHolder> {
     entities: Vec<Entity>,
     pub data: ComponentData<D>,
+    /// Contains a list of all defined families, along with its requirements.
     families: F,
 }
 
@@ -175,9 +176,6 @@ impl<D: EntityDataHolder, F: FamilyDataHolder> EntityManager<D, F> {
         EntityManager{
             entities: vec!(),
             data: ComponentData::new(),
-
-            /// Contains a list of all defined families, along with
-            /// its requirements.
             families: F::new(),
         }
     }
