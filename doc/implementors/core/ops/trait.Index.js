@@ -1,0 +1,10 @@
+(function() {var implementors = {};
+implementors['lib'] = ["impl&lt;D: <a class='trait' href='lib/trait.EntityDataHolder.html' title='lib::EntityDataHolder'>EntityDataHolder</a>&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Index.html' title='core::ops::Index'>Index</a>&lt;<a class='type' href='lib/type.Entity.html' title='lib::Entity'>Entity</a>&gt; for <a class='struct' href='lib/struct.ComponentData.html' title='lib::ComponentData'>ComponentData</a>&lt;D&gt;",];
+
+            if (window.register_implementors) {
+                window.register_implementors(implementors);
+            } else {
+                window.pending_implementors = implementors;
+            }
+        
+})()

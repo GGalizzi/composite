@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["ComponentPresence","Type `ComponentPresence` represents the optional presence of a component."]]});
