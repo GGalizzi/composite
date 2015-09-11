@@ -31,6 +31,8 @@
 //! //...
 //! Build::orc(&mut manager).at(10,15);
 //! ```
+
+/// See the [builder module documentation](/ecs/builder/) for information on this macro.
 #[macro_export]
 macro_rules! prototypes {
     ($([$proto:ident: $($comp:expr),+]),+) => {

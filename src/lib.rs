@@ -1,43 +1,6 @@
 //! An Entity Component System for game development.
-//!
-//! # Example
-//!
-//! ```
-//! #[macro_use]
-//! extern crate ecs;
 //! 
-//! use ecs::EntityManager;
-//! 
-//! pub struct Position {
-//!     x: i32,
-//!     y: i32,
-//! }
-//! 
-//! pub struct Glyph {
-//!     ch: char,
-//! }
-//! 
-//! components!([position, Position],
-//!             [glyph, Glyph]);
-//! 
-//! families!([mob: position, glyph, health, stats -],
-//!           [hurtable: health -],
-//!           [positioner: position -],
-//!           [tile: position, glyph - stats, health]);
-//! 
-//! fn main() {
-//!     let mut manager: EntityManager<EntityData, FamilyData> = EntityManager::new();
-//! 
-//!     let ent = manager.new_entity();
-//! 
-//!     manager.add_component(Position{x:1, y:2}).to(ent);
-//!     manager.add_component(Glyph{ch: '@'}).to(ent);
-//! 
-//!     println!("pos: {:?}", manager.data[ent].position.x);
-//!     manager.data[ent].position.x += 5;
-//!     println!("pos: {:?}", manager.data[ent].position.x);
-//! }
-//! ```
+//! Currently used for personal use (for a roguelike game), this library is highly unstable, and a WIP.
 #![allow(dead_code)]
 use std::collections::HashMap;
 use std::ops::{Index, IndexMut};
