@@ -45,6 +45,7 @@ use std::collections::hash_map::Entry::{Occupied, Vacant};
 
 pub mod component_presence;
 pub mod family;
+pub mod builder;
 
 use family::{FamilyDataHolder, FamilyMap};
 
