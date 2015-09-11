@@ -41,6 +41,7 @@
 #![allow(dead_code)]
 use std::collections::HashMap;
 use std::ops::{Index, IndexMut};
+use std::collections::hash_map::Entry::{Occupied, Vacant};
 
 pub mod component_presence;
 pub mod family;
@@ -157,6 +158,8 @@ pub trait EntityDataHolder {
 pub struct ComponentData<D: EntityDataHolder> {
     /// components holds the components owned by a certain entity.
     pub components: HashMap<Entity, D>,
+    /// Family to list of entities.
+    pub families: HashMap<&'static str, Vec<Entity>>,
 }
 
 /// This trait marks a struct as a component. (Automatically handled by macro `components!`)
@@ -173,6 +176,7 @@ impl<D: EntityDataHolder> ComponentData<D> {
     pub fn new() -> ComponentData<D> {
         ComponentData {
             components: HashMap::new(),
+            families: HashMap::new(),
         }
     }
 
@@ -186,6 +190,20 @@ impl<D: EntityDataHolder> ComponentData<D> {
 
     pub fn create_component_data_for(&mut self, ent: Entity) {
         self.components.insert(ent, D::new());
+    }
+
+    pub fn set_family_relation(&mut self, family: &'static str, ent: Entity) {
+        match self.families.entry(family) {
+            Vacant(entry) => {entry.insert(vec!(ent));},
+            Occupied(entry) => {entry.into_mut().push(ent);},
+        }
+    }
+
+    pub fn members_of(&self, family: &'static str) -> Vec<Entity> {
+        match self.families.get(family) {
+            Some(vec) => vec.clone(),
+            None => vec!(),
+        }
     }
 }
 
@@ -275,14 +293,16 @@ impl<'a, D: EntityDataHolder, C: Component<D>> ComponentAdder<'a, D,C> {
     pub fn to(self, ent: Entity) {
         self.component.add_to(ent, self.data);
         
-        let mut families = self.data[ent].match_families(self.families);
+        let mut families: Vec<&str> = self.data[ent].match_families(self.families);
         families.sort();
         families.dedup();
+
+        // Give the ComponentDataHolder information about this entities families.
         for family in families.iter() {
-            println!("{:?}", family);
-            //self.data.add_family_relation(family, ent);
+            self.data.set_family_relation(family, ent);
         }
 
+        // Give this EntityDataHolder a list of which families this entity has.
         self.data[ent].set_families(families);
     }
 }
