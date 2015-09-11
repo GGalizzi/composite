@@ -262,6 +262,7 @@ impl<D: EntityDataHolder, F: FamilyDataHolder> EntityManager<D, F> {
         ent
     }
 
+    /// Sets up for insertion of a single component.
     pub fn add_component<C: Component<D>>(&mut self, comp: C) -> ComponentAdder<D, C> {
         ComponentAdder::new(comp, &mut self.data, self.families.all_families())
     }
