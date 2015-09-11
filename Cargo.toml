@@ -1,4 +1,4 @@
 [package]
-name = "ecs"
+name = "Composite"
 version = "0.1.0"
 authors = ["Guillermo Galizzi <galizzi.guillermo@gmail.com>"]
