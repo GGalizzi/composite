@@ -38,11 +38,11 @@ macro_rules! prototypes {
     ($([$proto:ident: $($comp:expr),+]),+) => {
         struct Build<'a> {
             data: &'a mut EntityData,
-            entity: ::ecs::Entity,
+            entity: $crate::Entity,
         }
 
         impl<'a> Build<'a> {
-            pub fn new(data: &'a mut EntityData, ent: ::ecs::Entity) -> Build {
+            pub fn new(data: &'a mut EntityData, ent: $crate::Entity) -> Build {
                 Build{
                     data: data,
                     entity: ent,
