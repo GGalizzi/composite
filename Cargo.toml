@@ -1,4 +1,4 @@
 [package]
-name = "Composite"
+name = "composite"
 version = "0.1.0"
 authors = ["Guillermo Galizzi <galizzi.guillermo@gmail.com>"]

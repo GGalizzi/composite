@@ -1,4 +1,4 @@
 [root]
-name = "ecs"
+name = "composite"
 version = "0.1.0"
 
