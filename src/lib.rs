@@ -28,6 +28,7 @@ macro_rules! components {
         
         pub struct EntityData {
             pub components: Vec<&'static str>,
+            pub families: Vec<&'static str>,
             $(
                 pub $access: ComponentPresence<$ty>,
                 )+
@@ -37,6 +38,7 @@ macro_rules! components {
             pub fn new_empty() -> EntityData {
                 EntityData {
                     components: Vec::new(),
+                    families: Vec::new(),
                     $(
                         $access: None,
                         )+
@@ -51,12 +53,22 @@ macro_rules! components {
 
             fn match_families(&self, families: &FamilyMap) -> Vec<&'static str> {
                 let mut v: Vec<&str> = vec!();
+
+                // Tuple has the requirements/forbidden vectors
                 for (family, tuple) in families {
                     if $crate::family::matcher(tuple, &self.components) {
                         v.push(family)
                     }
                 }
                 v
+            }
+
+            fn set_families(&mut self, families: Vec<&'static str>) {
+                self.families = families;
+            }
+
+            fn belongs_to_family(&self, family: &str) -> bool {
+                self.families.contains(&family)
             }
         }
 
@@ -96,6 +108,11 @@ pub trait EntityDataHolder {
     /// Takes a map of all the defined families,
     /// and returns the families that match this entity.
     fn match_families(&self, &FamilyMap) -> Vec<&'static str>;
+
+    /// Sets the families this entity belongs to to `families`
+    fn set_families(&mut self, Vec<&'static str>);
+
+    fn belongs_to_family(&self, &'static str) -> bool;
 }
 
 /// ComponentData knows which entities have which components.
@@ -223,10 +240,12 @@ impl<'a, D: EntityDataHolder, C: Component<D>> ComponentAdder<'a, D,C> {
         let mut families = self.data[ent].match_families(self.families);
         families.sort();
         families.dedup();
-        for family in families {
+        for family in families.iter() {
             println!("{:?}", family);
             //self.data.add_family_relation(family, ent);
         }
+
+        self.data[ent].set_families(families);
     }
 }
 
