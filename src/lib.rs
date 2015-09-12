@@ -169,6 +169,10 @@ impl<D: EntityDataHolder> ComponentData<D> {
             None => vec!(),
         }
     }
+
+    pub fn any_member_of(&self, family: &'static str) -> bool {
+        !self.families.get(family).is_empty()
+    }
 }
 
 impl<D: EntityDataHolder> Index<Entity> for ComponentData<D> {
