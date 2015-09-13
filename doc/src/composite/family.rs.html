@@ -168,7 +168,7 @@
         <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashMap</span>;
         <span class='kw'>use</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>family</span>::<span class='ident'>FamilyDataHolder</span>;
         <span class='kw'>struct</span> <span class='ident'>FamilyData</span> {
-            <span class='ident'>families</span>: <span class='ident'>FamilyMap</span>,
+            <span class='ident'>families</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>family</span>::<span class='ident'>FamilyMap</span>,
         }
 
         <span class='kw'>impl</span> <span class='ident'>FamilyData</span> {
@@ -197,7 +197,7 @@
                 <span class='ident'>FamilyData</span>::<span class='ident'>filled_new</span>()
             }
             
-            <span class='kw'>fn</span> <span class='ident'>all_families</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>FamilyMap</span> {
+            <span class='kw'>fn</span> <span class='ident'>all_families</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>family</span>::<span class='ident'>FamilyMap</span> {
                 <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>families</span>
             }
         }
