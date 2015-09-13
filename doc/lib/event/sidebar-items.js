@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["EventManager","Holds all events."]],"trait":[["EventDataHolder","Implemented automatically by the `events!` macro."]]});
