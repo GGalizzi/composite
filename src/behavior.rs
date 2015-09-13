@@ -66,6 +66,8 @@ macro_rules! behaviors {
                 }
             }
          )+
+
+        #[allow(unused_assignments)]
         fn behavior_list() -> (Vec<Box<Behavior<EntityData, Event>>>, HashMap<&'static str, Vec<usize>>) {
             use std::collections::hash_map::Entry::{Occupied, Vacant};
 

@@ -44,7 +44,7 @@ macro_rules! families {
         use std::collections::HashMap;
         use $crate::family::FamilyDataHolder;
         struct FamilyData {
-            families: FamilyMap,
+            families: $crate::family::FamilyMap,
         }
 
         impl FamilyData {
@@ -73,7 +73,7 @@ macro_rules! families {
                 FamilyData::filled_new()
             }
             
-            fn all_families(&self) -> &FamilyMap {
+            fn all_families(&self) -> &$crate::family::FamilyMap {
                 &self.families
             }
         }

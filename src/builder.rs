@@ -48,7 +48,9 @@ macro_rules! prototypes {
                     entity: ent,
                 }
             }
-            pub fn get_id(self) -> Entity {
+
+            #[allow(dead_code)]
+            pub fn get_id(self) -> $crate::Entity {
                 self.entity
             }
             $(
