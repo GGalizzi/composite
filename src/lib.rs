@@ -2,6 +2,7 @@
 //! 
 //! Currently used for personal use (for a roguelike game), this library is highly unstable, and a WIP.
 #![allow(dead_code)]
+#![feature(append)]
 use std::collections::HashMap;
 use std::ops::{Index, IndexMut};
 use std::collections::hash_map::Entry::{Occupied, Vacant};
@@ -10,6 +11,7 @@ pub mod component_presence;
 pub mod family;
 pub mod builder;
 pub mod event;
+pub mod behavior;
 
 use family::{FamilyDataHolder, FamilyMap};
 /// Type Entity is simply an ID used as indexes.
@@ -73,6 +75,10 @@ macro_rules! components {
             fn belongs_to_family(&self, family: &str) -> bool {
                 self.families.contains(&family)
             }
+
+            fn families(&self) -> Vec<&'static str> {
+                self.families.clone()
+            }
         }
 
         $(
@@ -116,6 +122,9 @@ pub trait EntityDataHolder {
     fn set_families(&mut self, Vec<&'static str>);
 
     fn belongs_to_family(&self, &'static str) -> bool;
+
+    /// Gets the known families this ent belongs to.
+    fn families(&self) -> Vec<&'static str>;
 }
 
 /// ComponentData knows which entities have which components.
