@@ -9,13 +9,19 @@ pub trait EventDataHolder {
 
 pub struct EventManager<Holder: EventDataHolder> {
     map: HashMap<&'static str, HashMap<Entity, Vec<Holder>>>,
+    global: Vec<Holder>,
 }
 
 impl<Holder: EventDataHolder> EventManager<Holder> {
     pub fn new() -> EventManager<Holder> {
         EventManager {
             map: HashMap::new(),
+            global: Vec::new(),
         }
+    }
+
+    pub fn global_events(&mut self) -> ::std::vec::Drain<Holder> {
+        self.global.drain(..)
     }
     
     pub fn of_type(&self, s: &str) -> &HashMap<Entity, Vec<Holder>> {
@@ -25,7 +31,7 @@ impl<Holder: EventDataHolder> EventManager<Holder> {
     pub fn for_behavior_of(&mut self, related_events: Vec<&str>, ent: Entity) -> Vec<Holder> {
         let mut all_events = Vec::new();
         for s in related_events {
-            all_events.append(&mut self.map.get_mut(s).expect("No such type of event").
+            all_events.append(&mut self.map.get_mut(s).unwrap_or(&mut HashMap::new()).
                 remove(&ent).unwrap_or(vec!()));
         }
         all_events
@@ -37,6 +43,10 @@ impl<Holder: EventDataHolder> EventManager<Holder> {
             Occupied(entry) => {entry.into_mut().push(holder);},
             Vacant(entry) => {entry.insert(vec!(holder));}
         }
+    }
+
+    pub fn push_global(&mut self, holder: Holder) {
+        self.global.push(holder);
     }
 }
 

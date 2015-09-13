@@ -51,9 +51,9 @@ impl<T> ComponentPresence<T> {
     /// Returns the inner Component if there is one.
     /// Panics otherwise.
     #[inline]
-    pub fn unwrap(self) -> T {
-        match self {
-            Comp(c) => c,
+    pub fn unwrap(&mut self) -> &mut T {
+        match *self {
+            Comp(ref mut c) => c,
             None => panic!("called ComponentPresence::unwrap on a None value"),
         }
     }

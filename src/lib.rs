@@ -2,7 +2,7 @@
 //! 
 //! Currently used for personal use (for a roguelike game), this library is highly unstable, and a WIP.
 #![allow(dead_code)]
-#![feature(append)]
+#![feature(append,drain)]
 use std::collections::HashMap;
 use std::ops::{Index, IndexMut};
 use std::collections::hash_map::Entry::{Occupied, Vacant};
