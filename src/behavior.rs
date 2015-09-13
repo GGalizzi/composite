@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use super::event::{EventDataHolder, EventManager};
 use super::family::FamilyDataHolder;
-use super::EntityDataHolder;
+use super::{Entity,EntityDataHolder};
 
 pub trait BehaviorData {
     fn family(&self) -> &'static str;
@@ -10,7 +10,7 @@ pub trait BehaviorData {
 }
 
 pub trait Behavior<EntityData: EntityDataHolder, Event: EventDataHolder>: BehaviorData {
-    fn process(&self, Vec<Event>, &mut EntityData, &mut EventManager<Event>);
+    fn process(&self, Vec<Event>, Entity, &mut EntityData, &mut EventManager<Event>);
 }
 
 pub struct BehaviorManager<EntityData: EntityDataHolder, Event: EventDataHolder> {
@@ -31,6 +31,7 @@ impl<EntityData: EntityDataHolder, Event: EventDataHolder> BehaviorManager<Entit
             for beh_idx in self.valid_behaviors_for(manager.data[ent].families()) {
                 let ref beh = self.behaviors[beh_idx];
                 beh.process(event_manager.for_behavior_of(beh.events(), ent),
+                            ent,
                             &mut manager.data[ent],
                             event_manager);
             }

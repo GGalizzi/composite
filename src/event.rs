@@ -54,7 +54,7 @@ macro_rules! events {
             fn as_type(&self) -> &'static str {
                 match *self {
                     $(
-                        Event::$event(_) => stringify!($evtype)
+                        Event::$event(_) => stringify!($evtype),
                      )+
                 }
             }
