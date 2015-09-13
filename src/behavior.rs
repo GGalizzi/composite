@@ -1,3 +1,22 @@
+//! Management and creation of behaviors (a.k.a Systems in most ECSs).
+//!
+//!  A behavior defines how a certain family "behaves",
+//!  the actions it can take.
+//!
+//!  A behavior must implement the `Behavior` trait and then passed to the `behaviors!` macro.
+//!
+//!  # Example
+//!
+//!  pub struct MovementBehavior;
+//!  
+//!  impl Behavior<EntityData, Event> for MovementBehavior {
+//!      fn process(&self, events: Vec<Event>, ent: Entity, data: &mut ComponentData<EntityData>, event_manager: &mut EventManager<Event>) {
+//!      // implementation
+//!      }
+//!  }
+//!
+//!  behaviors!([MovementBehavior: family: movable, events: movement]]);
+
 use std::collections::HashMap;
 
 use super::event::{EventDataHolder, EventManager};
@@ -13,6 +32,7 @@ pub trait Behavior<EntityData: EntityDataHolder, Event: EventDataHolder>: Behavi
     fn process(&self, Vec<Event>, Entity, &mut ComponentData<EntityData>, &mut EventManager<Event>);
 }
 
+/// Keeps track of behavior and what family and events they care about.
 pub struct BehaviorManager<EntityData: EntityDataHolder, Event: EventDataHolder> {
     behaviors: Vec<Box<Behavior<EntityData, Event>>>,
     family_relation: HashMap<&'static str, Vec<usize>>,
