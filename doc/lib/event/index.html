@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="API documentation for the Rust `family` mod in crate `lib`.">
-    <meta name="keywords" content="rust, rustlang, rust-lang, family">
+    <meta name="description" content="API documentation for the Rust `event` mod in crate `lib`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, event">
 
-    <title>lib::family - Rust</title>
+    <title>lib::event - Rust</title>
 
     <link rel="stylesheet" type="text/css" href="../../main.css">
 
@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'><a href='../index.html'>lib</a></p><script>window.sidebarCurrent = {name: 'family', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+        <p class='location'><a href='../index.html'>lib</a></p><script>window.sidebarCurrent = {name: 'event', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
     </section>
 
     <nav class="sub">
@@ -41,48 +41,60 @@
     </nav>
 
     <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>lib</a>::<wbr><a class='mod' href=''>family</a></span><span class='out-of-band'><span id='render-detail'>
+<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>lib</a>::<wbr><a class='mod' href=''>event</a></span><span class='out-of-band'><span id='render-detail'>
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-258' class='srclink' href='../../src/lib/family.rs.html#1-81' title='goto source code'>[src]</a></span></h1>
-<h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+        </span><a id='src-381' class='srclink' href='../../src/lib/event.rs.html#1-117' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>Event handling system.</p>
+
+<p>Events are the way Behaviors communicate with each other, allowing for behaviors to be independent of
+components they don&#39;t care about.</p>
+
+<p>For example, some input behavior might fire an event specifying what happens when such button is pressed.
+Say, an event that&#39;s supposed to move the entity.</p>
+
+<p>Then a movement behavior will look for Movement events and react accordingly.</p>
+
+<p>Now you can simply make different input behaviors (say one for keyboard, another from an AI) that act on
+different components, and the movement behavior will just keep working, it doesn&#39;t care where that movement
+event came from.</p>
+
+<h1 id="defining-events" class='section-header'><a
+                           href="#defining-events">Defining Events</a></h1>
+<h1 id="[derive(debug)]" class='section-header'><a
+                           href="#[derive(debug)]">[derive(Debug)]</a></h1>
+<p>pub struct MovementEvent {
+    pub x: i32,
+    pub y: i32,
+}</p>
+
+<h1 id="[derive(debug)]-1" class='section-header'><a
+                           href="#[derive(debug)]-1">[derive(Debug)]</a></h1>
+<p>pub struct InputEvent {
+    pub pressed_key: Key,
+}</p>
+
+<p>// Event type first, then the struct.
+events!([input, InputEvent],
+        [movement, MovementEvent]);</p>
+</div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
                     <tr class=' module-item'>
-                        <td><a class='trait' href='trait.FamilyDataHolder.html'
-                               title='lib::family::FamilyDataHolder'>FamilyDataHolder</a></td>
+                        <td><a class='struct' href='struct.EventManager.html'
+                               title='lib::event::EventManager'>EventManager</a></td>
                         <td class='docblock short'>
-                             <p>Implemented by the <code>families!</code> macro, has the knowledge of all families requirements.</p>
+                             <p>Holds all events.</p>
 
                         </td>
                     </tr>
-                </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+                </table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table>
                     <tr class=' module-item'>
-                        <td><a class='fn' href='fn.matcher.html'
-                               title='lib::family::matcher'>matcher</a></td>
+                        <td><a class='trait' href='trait.EventDataHolder.html'
+                               title='lib::event::EventDataHolder'>EventDataHolder</a></td>
                         <td class='docblock short'>
-                             <p>Checks if the given <code>components</code> meet the requirements of a family.</p>
-
-                        </td>
-                    </tr>
-                </table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
-<table>
-                    <tr class=' module-item'>
-                        <td><a class='type' href='type.FamilyMap.html'
-                               title='lib::family::FamilyMap'>FamilyMap</a></td>
-                        <td class='docblock short'>
-                             <p>Matches each family to its list of required and forbidden components.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='type' href='type.ReqTuple.html'
-                               title='lib::family::ReqTuple'>ReqTuple</a></td>
-                        <td class='docblock short'>
-                             <p>Has two vecs: The first one is a list of must have components,
-the second is a list of forbidden components.</p>
+                             <p>Implemented automatically by the <code>events!</code> macro.</p>
 
                         </td>
                     </tr>

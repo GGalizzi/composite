@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="API documentation for the Rust `ComponentAdder` struct in crate `lib`.">
-    <meta name="keywords" content="rust, rustlang, rust-lang, ComponentAdder">
+    <meta name="description" content="API documentation for the Rust `events!` macro in crate `lib`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, events!">
 
-    <title>lib::ComponentAdder - Rust</title>
+    <title>lib::events! - Rust</title>
 
     <link rel="stylesheet" type="text/css" href="../main.css">
 
@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'><a href='index.html'>lib</a></p><script>window.sidebarCurrent = {name: 'ComponentAdder', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'><a href='index.html'>lib</a></p><script>window.sidebarCurrent = {name: 'events!', ty: 'macro', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </section>
 
     <nav class="sub">
@@ -40,20 +40,34 @@
         </form>
     </nav>
 
-    <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>lib</a>::<wbr><a class='struct' href=''>ComponentAdder</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content macro">
+<h1 class='fqn'><span class='in-band'><a href='index.html'>lib</a>::<wbr><a class='macro' href=''>events!</a></span><span class='out-of-band'><span id='render-detail'>
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-1281' class='srclink' href='../src/lib/lib.rs.html#256-260' title='goto source code'>[src]</a></span></h1>
-<pre class='rust struct'>pub struct ComponentAdder&lt;'a, D: 'a + <a class='trait' href='../lib/trait.EntityDataHolder.html' title='lib::EntityDataHolder'>EntityDataHolder</a>, C: <a class='trait' href='../lib/trait.Component.html' title='lib::Component'>Component</a>&lt;D&gt;&gt; {
-    // some fields omitted
-}</pre><div class='docblock'><p>Used by <code>EntityManager</code> to add components to an Entity.</p>
+        </span><a id='src-1414' class='srclink' href='../src/lib/event.rs.html#98-117' title='goto source code'>[src]</a></span></h1>
+<pre class='rust macro'>
+<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>events</span> {
+    ($([<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>evtype</span>:<span class='ident'>ident</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>event</span>:<span class='ident'>ident</span>]),<span class='op'>+</span>) <span class='op'>=&gt;</span> {
+        <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>)]</span>
+        <span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>Event</span> {
+            $(
+                <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>event</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>event</span>),
+             )<span class='op'>+</span>
+        }
 
-<p>An object of this type is obtained by calling <code>add_component</code> from an EntityManager</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;'a, D: <a class='trait' href='../lib/trait.EntityDataHolder.html' title='lib::EntityDataHolder'>EntityDataHolder</a>, C: <a class='trait' href='../lib/trait.Component.html' title='lib::Component'>Component</a>&lt;D&gt;&gt; <a class='struct' href='../lib/struct.ComponentAdder.html' title='lib::ComponentAdder'>ComponentAdder</a>&lt;'a, D, C&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(comp: C, data: &amp;'a mut <a class='struct' href='../lib/struct.ComponentData.html' title='lib::ComponentData'>ComponentData</a>&lt;D&gt;, families: &amp;'a <a class='type' href='../lib/family/type.FamilyMap.html' title='lib::family::FamilyMap'>FamilyMap</a>) -&gt; <a class='struct' href='../lib/struct.ComponentAdder.html' title='lib::ComponentAdder'>ComponentAdder</a>&lt;'a, D, C&gt;</code></h4>
-<h4 id='method.to' class='method'><code>fn <a href='#method.to' class='fnname'>to</a>(self, ent: <a class='type' href='../lib/type.Entity.html' title='lib::Entity'>Entity</a>)</code></h4>
-</div></section>
+        <span class='kw'>impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>event</span>::<span class='ident'>EventDataHolder</span> <span class='kw'>for</span> <span class='ident'>Event</span> {
+            <span class='kw'>fn</span> <span class='ident'>as_type</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span> {
+                <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
+                    $(
+                        <span class='ident'>Event</span>::<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>event</span>(_) <span class='op'>=&gt;</span> <span class='macro'>stringify</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>evtype</span>),
+                     )<span class='op'>+</span>
+                }
+            }
+        }
+    }
+}</pre>
+</section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
