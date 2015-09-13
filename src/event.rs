@@ -44,7 +44,7 @@ impl<Holder: EventDataHolder> EventManager<Holder> {
 macro_rules! events {
     ($([$evtype:ident, $event:ident]),+) => {
         #[derive(Debug)]
-        enum Event {
+        pub enum Event {
             $(
                 $event($event),
              )+
