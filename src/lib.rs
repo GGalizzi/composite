@@ -9,9 +9,9 @@ use std::collections::hash_map::Entry::{Occupied, Vacant};
 pub mod component_presence;
 pub mod family;
 pub mod builder;
+pub mod event;
 
 use family::{FamilyDataHolder, FamilyMap};
-
 /// Type Entity is simply an ID used as indexes.
 pub type Entity = u32;
 
@@ -171,7 +171,7 @@ impl<D: EntityDataHolder> ComponentData<D> {
     }
 
     pub fn any_member_of(&self, family: &'static str) -> bool {
-        !self.families.get(family).is_empty()
+        !self.families.get(family).expect("no such family").is_empty()
     }
 }
 
