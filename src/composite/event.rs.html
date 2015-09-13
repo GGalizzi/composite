@@ -157,6 +157,9 @@
 <span id="115">115</span>
 <span id="116">116</span>
 <span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Event handling system.</span>
 <span class='doccomment'>//!</span>
@@ -173,6 +176,8 @@
 <span class='doccomment'>//! event came from.</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//! # Defining Events</span>
+<span class='doccomment'>//!</span>
+<span class='doccomment'>//! ```</span>
 <span class='doccomment'>//! #[derive(Debug)]</span>
 <span class='doccomment'>//! pub struct MovementEvent {</span>
 <span class='doccomment'>//!     pub x: i32,</span>
@@ -187,6 +192,7 @@
 <span class='doccomment'>//! // Event type first, then the struct.</span>
 <span class='doccomment'>//! events!([input, InputEvent],</span>
 <span class='doccomment'>//!         [movement, MovementEvent]);</span>
+<span class='doccomment'>//! ```</span>
 
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashMap</span>;
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>hash_map</span>::<span class='ident'>Entry</span>::{<span class='ident'>Occupied</span>, <span class='ident'>Vacant</span>};

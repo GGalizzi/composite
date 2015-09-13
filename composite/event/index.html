@@ -45,7 +45,7 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-381' class='srclink' href='../../src/composite/event.rs.html#1-117' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-381' class='srclink' href='../../src/composite/event.rs.html#1-120' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>Event handling system.</p>
 
 <p>Events are the way Behaviors communicate with each other, allowing for behaviors to be independent of
@@ -61,23 +61,21 @@ different components, and the movement behavior will just keep working, it doesn
 event came from.</p>
 
 <h1 id="defining-events" class='section-header'><a
-                           href="#defining-events">Defining Events</a></h1>
-<h1 id="[derive(debug)]" class='section-header'><a
-                           href="#[derive(debug)]">[derive(Debug)]</a></h1>
-<p>pub struct MovementEvent {
-    pub x: i32,
-    pub y: i32,
-}</p>
+                           href="#defining-events">Defining Events</a></h1><pre class='rust rust-example-rendered'>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>MovementEvent</span> {
+    <span class='kw'>pub</span> <span class='ident'>x</span>: <span class='ident'>i32</span>,
+    <span class='kw'>pub</span> <span class='ident'>y</span>: <span class='ident'>i32</span>,
+}
 
-<h1 id="[derive(debug)]-1" class='section-header'><a
-                           href="#[derive(debug)]-1">[derive(Debug)]</a></h1>
-<p>pub struct InputEvent {
-    pub pressed_key: Key,
-}</p>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>)]</span>
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>InputEvent</span> {
+    <span class='kw'>pub</span> <span class='ident'>pressed_key</span>: <span class='ident'>Key</span>,
+}
 
-<p>// Event type first, then the struct.
-events!([input, InputEvent],
-        [movement, MovementEvent]);</p>
+<span class='comment'>// Event type first, then the struct.</span>
+<span class='macro'>events</span><span class='macro'>!</span>([<span class='ident'>input</span>, <span class='ident'>InputEvent</span>],
+        [<span class='ident'>movement</span>, <span class='ident'>MovementEvent</span>]);</pre>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
                     <tr class=' module-item'>

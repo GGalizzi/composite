@@ -148,6 +148,8 @@
 <span id="106">106</span>
 <span id="107">107</span>
 <span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Management and creation of behaviors (a.k.a Systems in most ECSs).</span>
 <span class='doccomment'>//!</span>
@@ -158,6 +160,7 @@
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//!  # Example</span>
 <span class='doccomment'>//!</span>
+<span class='doccomment'>//!  ```</span>
 <span class='doccomment'>//!  pub struct MovementBehavior;</span>
 <span class='doccomment'>//!  </span>
 <span class='doccomment'>//!  impl Behavior&lt;EntityData, Event&gt; for MovementBehavior {</span>
@@ -167,6 +170,7 @@
 <span class='doccomment'>//!  }</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//!  behaviors!([MovementBehavior: family: movable, events: movement]]);</span>
+<span class='doccomment'>//!  ```</span>
 
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashMap</span>;
 
