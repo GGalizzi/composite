@@ -10,7 +10,7 @@ pub trait BehaviorData {
 }
 
 pub trait Behavior<EntityData: EntityDataHolder, Event: EventDataHolder>: BehaviorData {
-    fn process(&self, &mut EntityData, &mut EventManager<Event>, Vec<Event>);
+    fn process(&self, Vec<Event>, &mut EntityData, &mut EventManager<Event>);
 }
 
 pub struct BehaviorManager<EntityData: EntityDataHolder, Event: EventDataHolder> {
@@ -29,16 +29,17 @@ impl<EntityData: EntityDataHolder, Event: EventDataHolder> BehaviorManager<Entit
     pub fn run<FamilyData: FamilyDataHolder>(&self, manager: &mut super::EntityManager<EntityData, FamilyData>, event_manager: &mut EventManager<Event>) {
         for ent in manager.entities.iter().cloned() {
             for beh_idx in self.valid_behaviors_for(manager.data[ent].families()) {
-                self.behaviors[beh_idx].process(&mut manager.data[ent], event_manager, vec!());
+                let ref beh = self.behaviors[beh_idx];
+                beh.process(event_manager.for_behavior_of(beh.events(), ent),
+                            &mut manager.data[ent],
+                            event_manager);
             }
         }
     }
 
     fn valid_behaviors_for(&self, families: Vec<&str>) -> Vec<usize> {
         let mut vec = Vec::new();
-        println!("{:?}", self.family_relation);
         for family in families {
-            println!("{:?}", family);
             vec.append(&mut self.family_relation.get(family).unwrap_or(&mut vec!()).clone());
         }
         vec

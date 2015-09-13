@@ -22,6 +22,15 @@ impl<Holder: EventDataHolder> EventManager<Holder> {
         &self.map[s]
     }
 
+    pub fn for_behavior_of(&mut self, related_events: Vec<&str>, ent: Entity) -> Vec<Holder> {
+        let mut all_events = Vec::new();
+        for s in related_events {
+            all_events.append(&mut self.map.get_mut(s).expect("No such type of event").
+                remove(&ent).unwrap_or(vec!()));
+        }
+        all_events
+    }
+
     pub fn push_for(&mut self, ent: Entity, holder: Holder) {
         let map = self.map.entry(holder.as_type()).or_insert(HashMap::new());
         match map.entry(ent) {
