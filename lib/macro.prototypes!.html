@@ -45,23 +45,25 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-896' class='srclink' href='../src/lib/builder.rs.html#37-66' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-1413' class='srclink' href='../src/lib/builder.rs.html#37-68' title='goto source code'>[src]</a></span></h1>
 <pre class='rust macro'>
 <span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>prototypes</span> {
     ($([<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>proto</span>:<span class='ident'>ident</span>: $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>comp</span>:<span class='ident'>expr</span>),<span class='op'>+</span>]),<span class='op'>+</span>) <span class='op'>=&gt;</span> {
         <span class='kw'>struct</span> <span class='ident'>Build</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
             <span class='ident'>data</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='ident'>EntityData</span>,
-            <span class='ident'>entity</span>: ::<span class='ident'>ecs</span>::<span class='ident'>Entity</span>,
+            <span class='ident'>entity</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>Entity</span>,
         }
 
         <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>Build</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-            <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>data</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='ident'>EntityData</span>, <span class='ident'>ent</span>: ::<span class='ident'>ecs</span>::<span class='ident'>Entity</span>) <span class='op'>-&gt;</span> <span class='ident'>Build</span> {
+            <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>data</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='ident'>EntityData</span>, <span class='ident'>ent</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>Entity</span>) <span class='op'>-&gt;</span> <span class='ident'>Build</span> {
                 <span class='ident'>Build</span>{
                     <span class='ident'>data</span>: <span class='ident'>data</span>,
                     <span class='ident'>entity</span>: <span class='ident'>ent</span>,
                 }
             }
-            <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_id</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Entity</span> {
+
+            <span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>dead_code</span>)]</span>
+            <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_id</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>Entity</span> {
                 <span class='self'>self</span>.<span class='ident'>entity</span>
             }
             $(

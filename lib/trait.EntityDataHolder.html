@@ -45,12 +45,13 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-385' class='srclink' href='../src/lib/lib.rs.html#108-119' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-873' class='srclink' href='../src/lib/lib.rs.html#114-128' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait EntityDataHolder {
     fn <a href='#tymethod.new' class='fnname'>new</a>() -&gt; Self;
     fn <a href='#tymethod.match_families' class='fnname'>match_families</a>(&amp;self, &amp;<a class='type' href='../lib/family/type.FamilyMap.html' title='lib::family::FamilyMap'>FamilyMap</a>) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'static <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;;
     fn <a href='#tymethod.set_families' class='fnname'>set_families</a>(&amp;mut self, <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'static <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;);
     fn <a href='#tymethod.belongs_to_family' class='fnname'>belongs_to_family</a>(&amp;self, &amp;'static <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>;
+    fn <a href='#tymethod.families' class='fnname'>families</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'static <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;;
 }</pre><div class='docblock'><p>This is a marker trait to be used by the <code>components!</code> macro.</p>
 
 <p>This trait is implemented by <code>EntityData</code> which is a struct generated
@@ -72,7 +73,8 @@ You&#39;ll access these fields directly when indexing the <code>data</code> fiel
         <h3 id='tymethod.new' class='method stab '><code>fn <a href='#tymethod.new' class='fnname'>new</a>() -&gt; Self</code></h3><h3 id='tymethod.match_families' class='method stab '><code>fn <a href='#tymethod.match_families' class='fnname'>match_families</a>(&amp;self, &amp;<a class='type' href='../lib/family/type.FamilyMap.html' title='lib::family::FamilyMap'>FamilyMap</a>) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'static <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;</code></h3><div class='docblock'><p>Takes a map of all the defined families,
 and returns the families that match this entity.</p>
 </div><h3 id='tymethod.set_families' class='method stab '><code>fn <a href='#tymethod.set_families' class='fnname'>set_families</a>(&amp;mut self, <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'static <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;)</code></h3><div class='docblock'><p>Sets the families this entity belongs to to <code>families</code></p>
-</div><h3 id='tymethod.belongs_to_family' class='method stab '><code>fn <a href='#tymethod.belongs_to_family' class='fnname'>belongs_to_family</a>(&amp;self, &amp;'static <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3></div>
+</div><h3 id='tymethod.belongs_to_family' class='method stab '><code>fn <a href='#tymethod.belongs_to_family' class='fnname'>belongs_to_family</a>(&amp;self, &amp;'static <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><h3 id='tymethod.families' class='method stab '><code>fn <a href='#tymethod.families' class='fnname'>families</a>(&amp;self) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;&amp;'static <a href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>&gt;</code></h3><div class='docblock'><p>Gets the known families this ent belongs to.</p>
+</div></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
     </ul><script type="text/javascript" async

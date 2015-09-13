@@ -106,6 +106,8 @@
 <span id="64">64</span>
 <span id="65">65</span>
 <span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
 </pre><pre class='rust '>
 <span class='doccomment'>//! Implements `Build` an interface to define prototypes</span>
 <span class='doccomment'>//!</span>
@@ -147,17 +149,19 @@
     ($([<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>proto</span>:<span class='ident'>ident</span>: $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>comp</span>:<span class='ident'>expr</span>),<span class='op'>+</span>]),<span class='op'>+</span>) <span class='op'>=&gt;</span> {
         <span class='kw'>struct</span> <span class='ident'>Build</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
             <span class='ident'>data</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='ident'>EntityData</span>,
-            <span class='ident'>entity</span>: ::<span class='ident'>ecs</span>::<span class='ident'>Entity</span>,
+            <span class='ident'>entity</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>Entity</span>,
         }
 
         <span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>Build</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-            <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>data</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='ident'>EntityData</span>, <span class='ident'>ent</span>: ::<span class='ident'>ecs</span>::<span class='ident'>Entity</span>) <span class='op'>-&gt;</span> <span class='ident'>Build</span> {
+            <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>data</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='ident'>EntityData</span>, <span class='ident'>ent</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>Entity</span>) <span class='op'>-&gt;</span> <span class='ident'>Build</span> {
                 <span class='ident'>Build</span>{
                     <span class='ident'>data</span>: <span class='ident'>data</span>,
                     <span class='ident'>entity</span>: <span class='ident'>ent</span>,
                 }
             }
-            <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_id</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Entity</span> {
+
+            <span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>dead_code</span>)]</span>
+            <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_id</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>Entity</span> {
                 <span class='self'>self</span>.<span class='ident'>entity</span>
             }
             $(
