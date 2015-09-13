@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="API documentation for the Rust `Component` trait in crate `composite`.">
-    <meta name="keywords" content="rust, rustlang, rust-lang, Component">
+    <meta name="description" content="API documentation for the Rust `Behavior` trait in crate `composite`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Behavior">
 
-    <title>composite::Component - Rust</title>
+    <title>composite::behavior::Behavior - Rust</title>
 
-    <link rel="stylesheet" type="text/css" href="../main.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
 
     
     
@@ -26,7 +26,7 @@
 
     <section class="sidebar">
         
-        <p class='location'><a href='index.html'>composite</a></p><script>window.sidebarCurrent = {name: 'Component', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'><a href='../index.html'>composite</a>::<wbr><a href='index.html'>behavior</a></p><script>window.sidebarCurrent = {name: 'Behavior', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </section>
 
     <nav class="sub">
@@ -41,26 +41,21 @@
     </nav>
 
     <section id='main' class="content trait">
-<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>composite</a>::<wbr><a class='trait' href=''>Component</a></span><span class='out-of-band'><span id='render-detail'>
+<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>composite</a>::<wbr><a href='index.html'>behavior</a>::<wbr><a class='trait' href=''>Behavior</a></span><span class='out-of-band'><span id='render-detail'>
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-937' class='srclink' href='../src/composite/lib.rs.html#142-146' title='goto source code'>[src]</a></span></h1>
-<pre class='rust trait'>pub trait Component&lt;D: <a class='trait' href='../composite/trait.EntityDataHolder.html' title='composite::EntityDataHolder'>EntityDataHolder</a>&gt; {
-    fn <a href='#tymethod.add_to' class='fnname'>add_to</a>(self, ent: <a class='type' href='../composite/type.Entity.html' title='composite::Entity'>Entity</a>, data: &amp;mut <a class='struct' href='../composite/struct.ComponentData.html' title='composite::ComponentData'>ComponentData</a>&lt;D&gt;);
-}</pre><div class='docblock'><p>This trait marks a struct as a component. (Automatically handled by macro <code>components!</code>)</p>
-
-<p>It should implement the <code>add_to</code> function, which is automatically generated
-by the <code>components!</code> macro.</p>
-</div>
+        </span><a id='src-627' class='srclink' href='../../src/composite/behavior.rs.html#31-33' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait Behavior&lt;EntityData: <a class='trait' href='../../composite/trait.EntityDataHolder.html' title='composite::EntityDataHolder'>EntityDataHolder</a>, Event: <a class='trait' href='../../composite/event/trait.EventDataHolder.html' title='composite::event::EventDataHolder'>EventDataHolder</a>&gt;: <a class='trait' href='../../composite/behavior/trait.BehaviorData.html' title='composite::behavior::BehaviorData'>BehaviorData</a> {
+    fn <a href='#tymethod.process' class='fnname'>process</a>(&amp;self, <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;Event&gt;, <a class='type' href='../../composite/type.Entity.html' title='composite::Entity'>Entity</a>, &amp;mut <a class='struct' href='../../composite/struct.ComponentData.html' title='composite::ComponentData'>ComponentData</a>&lt;EntityData&gt;, &amp;mut <a class='struct' href='../../composite/event/struct.EventManager.html' title='composite::event::EventManager'>EventManager</a>&lt;Event&gt;);
+}</pre>
             <h2 id='required-methods'>Required Methods</h2>
             <div class='methods'>
-        <h3 id='tymethod.add_to' class='method stab '><code>fn <a href='#tymethod.add_to' class='fnname'>add_to</a>(self, ent: <a class='type' href='../composite/type.Entity.html' title='composite::Entity'>Entity</a>, data: &amp;mut <a class='struct' href='../composite/struct.ComponentData.html' title='composite::ComponentData'>ComponentData</a>&lt;D&gt;)</code></h3><div class='docblock'><p>Adds self to the specified entity. Called by the <code>EntityManager</code></p>
-</div></div>
+        <h3 id='tymethod.process' class='method stab '><code>fn <a href='#tymethod.process' class='fnname'>process</a>(&amp;self, <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;Event&gt;, <a class='type' href='../../composite/type.Entity.html' title='composite::Entity'>Entity</a>, &amp;mut <a class='struct' href='../../composite/struct.ComponentData.html' title='composite::ComponentData'>ComponentData</a>&lt;EntityData&gt;, &amp;mut <a class='struct' href='../../composite/event/struct.EventManager.html' title='composite::event::EventManager'>EventManager</a>&lt;Event&gt;)</code></h3></div>
         <h2 id='implementors'>Implementors</h2>
         <ul class='item-list' id='implementors-list'>
     </ul><script type="text/javascript" async
-                              src="../implementors/composite/trait.Component.js">
+                              src="../../implementors/composite/behavior/trait.Behavior.js">
                       </script></section>
     <section id='search' class="content hidden"></section>
 
@@ -111,13 +106,13 @@ by the <code>components!</code> macro.</p>
     
 
     <script>
-        window.rootPath = "../";
+        window.rootPath = "../../";
         window.currentCrate = "composite";
         window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
-    <script src="../main.js"></script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
     
-    <script async src="../search-index.js"></script>
+    <script async src="../../search-index.js"></script>
 </body>
 </html>

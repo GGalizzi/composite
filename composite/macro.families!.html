@@ -45,14 +45,14 @@
             <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                 [<span class='inner'>&#x2212;</span>]
             </a>
-        </span><a id='src-895' class='srclink' href='../src/composite/family.rs.html#42-81' title='goto source code'>[src]</a></span></h1>
+        </span><a id='src-1412' class='srclink' href='../src/composite/family.rs.html#42-81' title='goto source code'>[src]</a></span></h1>
 <pre class='rust macro'>
 <span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>families</span> {
     ($([<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>family</span>:<span class='ident'>ident</span>: $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>req</span>:<span class='ident'>ident</span>),<span class='op'>*</span> <span class='op'>-</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>forb</span>:<span class='ident'>ident</span>),<span class='op'>*</span>]),<span class='op'>+</span>) <span class='op'>=&gt;</span> {
         <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>HashMap</span>;
         <span class='kw'>use</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>family</span>::<span class='ident'>FamilyDataHolder</span>;
         <span class='kw'>struct</span> <span class='ident'>FamilyData</span> {
-            <span class='ident'>families</span>: <span class='ident'>FamilyMap</span>,
+            <span class='ident'>families</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>family</span>::<span class='ident'>FamilyMap</span>,
         }
 
         <span class='kw'>impl</span> <span class='ident'>FamilyData</span> {
@@ -81,7 +81,7 @@
                 <span class='ident'>FamilyData</span>::<span class='ident'>filled_new</span>()
             }
             
-            <span class='kw'>fn</span> <span class='ident'>all_families</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>FamilyMap</span> {
+            <span class='kw'>fn</span> <span class='ident'>all_families</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>family</span>::<span class='ident'>FamilyMap</span> {
                 <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>families</span>
             }
         }
