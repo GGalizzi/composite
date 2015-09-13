@@ -13,6 +13,8 @@
 //! event came from.
 //!
 //! # Defining Events
+//!
+//! ```
 //! #[derive(Debug)]
 //! pub struct MovementEvent {
 //!     pub x: i32,
@@ -27,6 +29,7 @@
 //! // Event type first, then the struct.
 //! events!([input, InputEvent],
 //!         [movement, MovementEvent]);
+//! ```
 
 use std::collections::HashMap;
 use std::collections::hash_map::Entry::{Occupied, Vacant};

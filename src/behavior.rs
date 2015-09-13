@@ -7,6 +7,7 @@
 //!
 //!  # Example
 //!
+//!  ```
 //!  pub struct MovementBehavior;
 //!  
 //!  impl Behavior<EntityData, Event> for MovementBehavior {
@@ -16,6 +17,7 @@
 //!  }
 //!
 //!  behaviors!([MovementBehavior: family: movable, events: movement]]);
+//!  ```
 
 use std::collections::HashMap;
 
