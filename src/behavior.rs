@@ -23,44 +23,45 @@ use std::collections::HashMap;
 
 use super::event::{EventDataHolder, EventManager};
 use super::family::FamilyDataHolder;
-use super::{Entity,EntityDataHolder, ComponentData};
+use super::{Entity,EntityDataHolder, ComponentData, EntityManager};
 
 pub trait BehaviorData {
     fn family(&self) -> &'static str;
     fn events(&self) -> Vec<&'static str>;
 }
 
-pub trait Behavior<EntityData: EntityDataHolder, Event: EventDataHolder>: BehaviorData {
-    fn process(&self, Vec<Event>, Entity, &mut ComponentData<EntityData>, &mut EventManager<Event>);
+pub trait Behavior<EntityData: EntityDataHolder, FamilyData: FamilyDataHolder, Event: EventDataHolder>: BehaviorData {
+    fn process(&self, Vec<Event>, Entity, &mut EntityManager<EntityData, FamilyData>, &mut EventManager<Event>);
 }
 
 /// Keeps track of behavior and what family and events they care about.
-pub struct BehaviorManager<EntityData: EntityDataHolder, Event: EventDataHolder> {
-    behaviors: Vec<Box<Behavior<EntityData, Event>>>,
+pub struct BehaviorManager<EntityData: EntityDataHolder, FamilyData: FamilyDataHolder, Event: EventDataHolder> {
+    pub behaviors: Vec<Box<Behavior<EntityData, FamilyData, Event>>>,
     family_relation: HashMap<&'static str, Vec<usize>>,
 }
 
-impl<EntityData: EntityDataHolder, Event: EventDataHolder> BehaviorManager<EntityData, Event> {
-    pub fn new((behaviors, families): (Vec<Box<Behavior<EntityData, Event>>>, HashMap<&'static str, Vec<usize>>)) -> BehaviorManager<EntityData, Event> {
+impl<EntityData: EntityDataHolder, FamilyData: FamilyDataHolder, Event: EventDataHolder> BehaviorManager<EntityData, FamilyData, Event> {
+    pub fn new((behaviors, families): (Vec<Box<Behavior<EntityData, FamilyData, Event>>>, HashMap<&'static str, Vec<usize>>)) -> BehaviorManager<EntityData, FamilyData, Event> {
         BehaviorManager {
             behaviors: behaviors,
             family_relation: families,
         }
     }
 
-    pub fn run<FamilyData: FamilyDataHolder>(&self, manager: &mut super::EntityManager<EntityData, FamilyData>, event_manager: &mut EventManager<Event>) {
-        for ent in manager.entities.iter().cloned() {
-            for beh_idx in self.valid_behaviors_for(manager.data[ent].families()) {
+    pub fn run(&self, manager: &mut EntityManager<EntityData, FamilyData>, event_manager: &mut EventManager<Event>) {
+        for ent in manager.entities.clone().iter() {
+            if manager.data.get(ent).is_none() { continue; } // If Removed during iteration.
+            for beh_idx in self.valid_behaviors_for(manager.data[*ent].families()) {
                 let ref beh = self.behaviors[beh_idx];
-                beh.process(event_manager.for_behavior_of(beh.events(), ent),
-                            ent,
-                            &mut manager.data,
+                beh.process(event_manager.for_behavior_of(beh.events(), *ent, true),
+                            *ent,
+                            manager,
                             event_manager);
             }
         }
     }
 
-    fn valid_behaviors_for(&self, families: Vec<&str>) -> Vec<usize> {
+    pub fn valid_behaviors_for(&self, families: Vec<&str>) -> Vec<usize> {
         let mut vec = Vec::new();
         for family in families {
             vec.append(&mut self.family_relation.get(family).unwrap_or(&mut vec!()).clone());
@@ -90,14 +91,14 @@ macro_rules! behaviors {
          )+
 
         #[allow(unused_assignments)]
-        pub fn behavior_list() -> (Vec<Box<Behavior<EntityData, Event>>>, HashMap<&'static str, Vec<usize>>) {
+        pub fn behavior_list() -> (Vec<Box<Behavior<EntityData, FamilyData, Event>>>, HashMap<&'static str, Vec<usize>>) {
             use std::collections::hash_map::Entry::{Occupied, Vacant};
 
             let mut idx = 0;
             let mut beh_vec = Vec::new();
             let mut fam_map = HashMap::new();
             $(
-                beh_vec.push(Box::new($behavior) as Box<Behavior<EntityData, Event>>);
+                beh_vec.push(Box::new($behavior) as Box<Behavior<EntityData, FamilyData, Event>>);
                 match fam_map.entry(stringify!($family)) {
                     Vacant(entry) => { entry.insert(vec!(idx));},
                     Occupied(entry) => { entry.into_mut().push(idx);}

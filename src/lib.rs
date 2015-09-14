@@ -165,10 +165,35 @@ impl<D: EntityDataHolder> ComponentData<D> {
         self.components.insert(ent, D::new());
     }
 
+    pub fn delete_component_data_for(&mut self, ent: Entity) {
+        for family in self[ent].families() {
+            self.remove_from_family(family, ent);
+            debug_assert!(!self.families[family].contains(&ent))
+        }
+        self.components.remove(&ent);
+    }
+
+    fn remove_from_family(&mut self, family: &str, ent: Entity) {
+        let mut idx: Option<usize> = None;
+        {
+            let vec = self.families.get_mut(family).expect("No such family");
+            let op = vec.iter().enumerate().find(|&(_,e)| *e == ent);
+            idx = Some(op.expect("Entity not found in this family").0);
+        }
+
+        if let Some(idx) = idx {
+            self.families.get_mut(family).unwrap().swap_remove(idx);
+        } else { panic!("Entity not found for family"); }
+    }
+
     pub fn set_family_relation(&mut self, family: &'static str, ent: Entity) {
         match self.families.entry(family) {
             Vacant(entry) => {entry.insert(vec!(ent));},
-            Occupied(entry) => {entry.into_mut().push(ent);},
+            Occupied(entry) => {
+                let v = entry.into_mut();
+                if v.contains(&ent) { return; }
+                v.push(ent);
+            },
         }
     }
 
@@ -188,7 +213,7 @@ impl<D: EntityDataHolder> Index<Entity> for ComponentData<D> {
     type Output = D;
 
     fn index(&self, index: Entity) -> &D {
-        &self.components.get(&index).expect("no entity")
+        &self.components.get(&index).expect(&format!("no entity {:?}", index))
     }
 }
 
@@ -213,7 +238,9 @@ impl<D: EntityDataHolder> IndexMut<Entity> for ComponentData<D> {
 /// manager.add_component_to(ent, Position{x: 1, y: 2});
 /// ```
 pub struct EntityManager<D: EntityDataHolder, F: FamilyDataHolder> {
-    entities: Vec<Entity>,
+    next_idx: usize,
+    reusable_idxs: Vec<usize>,
+    pub entities: Vec<Entity>,
     pub data: ComponentData<D>,
     /// Contains a list of all defined families, along with its requirements.
     families: F,
@@ -224,6 +251,8 @@ impl<D: EntityDataHolder, F: FamilyDataHolder> EntityManager<D, F> {
     /// Creates a new EntityManager
     pub fn new() -> EntityManager<D, F> {
         EntityManager{
+            next_idx: 0,
+            reusable_idxs: vec!(),
             entities: vec!(),
             data: ComponentData::new(),
             families: F::new(),
@@ -232,11 +261,27 @@ impl<D: EntityDataHolder, F: FamilyDataHolder> EntityManager<D, F> {
 
     /// Creates a new entity, assigning it an unused ID, returning that ID for further use.
     pub fn new_entity(&mut self) -> Entity {
-        let ent = self.entities.len() as Entity;
+        let idx = match self.reusable_idxs.pop() {
+            None => {
+                let ent = self.next_idx;
+                self.next_idx += 1;
+                ent
+            }
+            Some(idx) => idx,
+        };
+
+        let ent = idx as Entity;
         self.entities.push(ent);
 
         self.data.create_component_data_for(ent);
         ent
+    }
+
+    pub fn delete_entity(&mut self, ent: Entity) {
+        let idx = ent as usize;
+        self.reusable_idxs.push(idx);
+        self.entities.remove(idx);
+        self.data.delete_component_data_for(ent);
     }
 
     /// Sets up for insertion of a single component.

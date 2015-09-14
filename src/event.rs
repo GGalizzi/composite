@@ -37,7 +37,7 @@ use std::collections::hash_map::Entry::{Occupied, Vacant};
 use super::Entity;
 
 /// Implemented automatically by the `events!` macro.
-pub trait EventDataHolder {
+pub trait EventDataHolder: Clone {
     fn as_type(&self) -> &'static str;
 }
 
@@ -73,11 +73,17 @@ impl<Holder: EventDataHolder> EventManager<Holder> {
     }
 
     /// Given the events a behavior listens to, and the entity it will process, return the relevant events.
-    pub fn for_behavior_of(&mut self, related_events: Vec<&str>, ent: Entity) -> Vec<Holder> {
+    pub fn for_behavior_of(&mut self, related_events: Vec<&str>, ent: Entity, clone: bool) -> Vec<Holder> {
         let mut all_events = Vec::new();
         for s in related_events {
-            all_events.append(&mut self.map.get_mut(s).unwrap_or(&mut HashMap::new()).
-                remove(&ent).unwrap_or(vec!()));
+            let op = self.map.get_mut(s);
+            if op.is_none() {return vec!();}
+            let vec = op.unwrap();
+            if clone {
+                all_events.append(&mut vec.clone().remove(&ent).unwrap_or(vec!()));
+            } else {
+                all_events.append(&mut vec.remove(&ent).unwrap_or(vec!()));
+            }
         }
         all_events
     }
@@ -100,7 +106,7 @@ impl<Holder: EventDataHolder> EventManager<Holder> {
 #[macro_export]
 macro_rules! events {
     ($([$evtype:ident, $event:ident]),+) => {
-        #[derive(Debug)]
+        #[derive(Debug, Clone)]
         pub enum Event {
             $(
                 $event($event),

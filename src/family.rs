@@ -43,7 +43,7 @@ macro_rules! families {
     ($([$family:ident: $($req:ident),* - $($forb:ident),*]),+) => {
         use std::collections::HashMap;
         use $crate::family::FamilyDataHolder;
-        struct FamilyData {
+        pub struct FamilyData {
             families: $crate::family::FamilyMap,
         }
 
