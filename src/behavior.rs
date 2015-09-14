@@ -30,36 +30,38 @@ pub trait BehaviorData {
     fn events(&self) -> Vec<&'static str>;
 }
 
-pub trait Behavior<EntityData: EntityDataHolder, FamilyData: FamilyDataHolder, Event: EventDataHolder>: BehaviorData {
-    fn process(&self, Vec<Event>, Entity, &mut EntityManager<EntityData, FamilyData>, &mut EventManager<Event>);
+pub trait Behavior<T, Event: EventDataHolder>: BehaviorData {
+    fn process(&self, Vec<Event>, Entity, &mut T, &mut EventManager<Event>);
 }
 
 /// Keeps track of behavior and what family and events they care about.
-pub struct BehaviorManager<EntityData: EntityDataHolder, FamilyData: FamilyDataHolder, Event: EventDataHolder> {
-    pub behaviors: Vec<Box<Behavior<EntityData, FamilyData, Event>>>,
+pub struct BehaviorManager<T, Event: EventDataHolder> {
+    pub behaviors: Vec<Box<Behavior<T,Event>>>,
     family_relation: HashMap<&'static str, Vec<usize>>,
 }
 
-impl<EntityData: EntityDataHolder, FamilyData: FamilyDataHolder, Event: EventDataHolder> BehaviorManager<EntityData, FamilyData, Event> {
-    pub fn new((behaviors, families): (Vec<Box<Behavior<EntityData, FamilyData, Event>>>, HashMap<&'static str, Vec<usize>>)) -> BehaviorManager<EntityData, FamilyData, Event> {
+impl<T, Event: EventDataHolder> BehaviorManager<T, Event> {
+    pub fn new((behaviors, families): (Vec<Box<Behavior<T, Event>>>, HashMap<&'static str, Vec<usize>>)) -> BehaviorManager<T, Event> {
         BehaviorManager {
             behaviors: behaviors,
             family_relation: families,
         }
     }
 
-    pub fn run(&self, manager: &mut EntityManager<EntityData, FamilyData>, event_manager: &mut EventManager<Event>) {
+    /*pub fn run<EntityData, FamilyData>(&self, manager: &mut EntityManager<EntityData, FamilyData>, event_manager: &mut EventManager<Event>)
+    where EntityData: EntityDataHolder, FamilyData: FamilyDataHolder {
         for ent in manager.entities.clone().iter() {
             if manager.data.get(ent).is_none() { continue; } // If Removed during iteration.
             for beh_idx in self.valid_behaviors_for(manager.data[*ent].families()) {
                 let ref beh = self.behaviors[beh_idx];
-                beh.process(event_manager.for_behavior_of(beh.events(), *ent, true),
+                beh.process::<EntityManager<EntityData, FamilyData>>
+                    (event_manager.for_behavior_of(beh.events(), *ent, true),
                             *ent,
                             manager,
                             event_manager);
             }
         }
-    }
+    }*/
 
     pub fn valid_behaviors_for(&self, families: Vec<&str>) -> Vec<usize> {
         let mut vec = Vec::new();
@@ -72,7 +74,7 @@ impl<EntityData: EntityDataHolder, FamilyData: FamilyDataHolder, Event: EventDat
 
 #[macro_export]
 macro_rules! behaviors {
-    ($([$behavior:ident: family: $family:ident, events: $($event:ident),*]),+) => {
+    ($t:ty:$([$behavior:ident: family: $family:ident, events: $($event:ident),*]),+) => {
 
         $(
             impl $crate::behavior::BehaviorData for $behavior {
@@ -91,14 +93,14 @@ macro_rules! behaviors {
          )+
 
         #[allow(unused_assignments)]
-        pub fn behavior_list() -> (Vec<Box<Behavior<EntityData, FamilyData, Event>>>, HashMap<&'static str, Vec<usize>>) {
+        pub fn behavior_list() -> (Vec<Box<Behavior<$t, Event>>>, HashMap<&'static str, Vec<usize>>) {
             use std::collections::hash_map::Entry::{Occupied, Vacant};
 
             let mut idx = 0;
             let mut beh_vec = Vec::new();
             let mut fam_map = HashMap::new();
             $(
-                beh_vec.push(Box::new($behavior) as Box<Behavior<EntityData, FamilyData, Event>>);
+                beh_vec.push(Box::new($behavior) as Box<Behavior<World, Event>>);
                 match fam_map.entry(stringify!($family)) {
                     Vacant(entry) => { entry.insert(vec!(idx));},
                     Occupied(entry) => { entry.into_mut().push(idx);}
