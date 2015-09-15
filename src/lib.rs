@@ -31,6 +31,7 @@ macro_rules! components {
         use $crate::component_presence::ComponentPresence::*;
         use $crate::{EntityDataHolder, Component, Entity, ComponentData};
         use $crate::family::{FamilyMap};
+        use std::fmt;
 
         #[derive(Clone)]
         pub struct EntityData {
@@ -50,6 +51,20 @@ macro_rules! components {
                         $access: None,
                         )+
                 }
+            }
+        }
+
+        impl fmt::Debug for EntityData {
+            fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+                let mut b = fmt.debug_struct("EntityData");
+                b.field("has components", &self.components);
+                b.field("belongs to families", &self.families);
+                $(
+                    if self.$access.has_it() {
+                        b.field(stringify!($access), &self.$access);
+                    }
+                 )+
+                b.finish()
             }
         }
 
