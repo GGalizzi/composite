@@ -14,6 +14,7 @@ pub mod event;
 pub mod behavior;
 
 use family::{FamilyDataHolder, FamilyMap};
+use behavior::BehaviorManager;
 /// Type Entity is simply an ID used as indexes.
 pub type Entity = u32;
 
@@ -30,7 +31,8 @@ macro_rules! components {
         use $crate::component_presence::ComponentPresence::*;
         use $crate::{EntityDataHolder, Component, Entity, ComponentData};
         use $crate::family::{FamilyMap};
-        
+
+        #[derive(Clone)]
         pub struct EntityData {
             pub components: Vec<&'static str>,
             pub families: Vec<&'static str>,
@@ -313,7 +315,7 @@ impl<'a, D: EntityDataHolder, C: Component<D>> ComponentAdder<'a, D,C> {
             families: families,
         }
     }
-    pub fn to(self, ent: Entity) {
+    pub fn to<A,B: event::EventDataHolder>(self, ent: Entity, processor: &mut BehaviorManager<A,B>) {
         self.component.add_to(ent, self.data);
         
         let mut families: Vec<&str> = self.data[ent].match_families(self.families);
@@ -323,6 +325,10 @@ impl<'a, D: EntityDataHolder, C: Component<D>> ComponentAdder<'a, D,C> {
         // Give the ComponentDataHolder information about this entities families.
         for family in families.iter() {
             self.data.set_family_relation(family, ent);
+        }
+
+        if !processor.valid_behaviors_for(families.clone()).is_empty() {
+            processor.add_processable(ent);
         }
 
         // Give this EntityDataHolder a list of which families this entity has.

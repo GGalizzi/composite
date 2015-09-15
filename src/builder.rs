@@ -35,7 +35,7 @@
 /// See the [builder module documentation](/ecs/builder/) for information on this macro.
 #[macro_export]
 macro_rules! prototypes {
-    ($([$proto:ident: $($comp:expr),+]),+) => {
+    ($t:ty: $([$proto:ident: $($comp:expr),+]),+) => {
         struct Build<'a> {
             data: &'a mut EntityData,
             entity: $crate::Entity,
@@ -54,10 +54,10 @@ macro_rules! prototypes {
                 self.entity
             }
             $(
-                fn $proto(manager: &mut EntityManager<EntityData, FamilyData>) -> Build {
+                fn $proto(processor: &mut BehaviorManager<$t, Event>, manager: &'a mut EntityManager<EntityData, FamilyData>) -> Build<'a> {
                     let ent = manager.new_entity();
                     $(
-                        manager.add_component($comp).to(ent);
+                        manager.add_component($comp).to(ent, processor);
                      )+
                     let ref mut ent_data = manager.data[ent];
                     Build::new(ent_data, ent)

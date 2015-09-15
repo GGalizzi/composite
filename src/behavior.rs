@@ -20,12 +20,13 @@
 //! ```
 
 use std::collections::HashMap;
+use std::fmt;
 
 use super::event::{EventDataHolder, EventManager};
 use super::family::FamilyDataHolder;
 use super::{Entity,EntityDataHolder, ComponentData, EntityManager};
 
-pub trait BehaviorData {
+pub trait BehaviorData: fmt::Debug {
     fn family(&self) -> &'static str;
     fn events(&self) -> Vec<&'static str>;
 }
@@ -38,6 +39,7 @@ pub trait Behavior<T, Event: EventDataHolder>: BehaviorData {
 pub struct BehaviorManager<T, Event: EventDataHolder> {
     pub behaviors: Vec<Box<Behavior<T,Event>>>,
     family_relation: HashMap<&'static str, Vec<usize>>,
+    pub processable: Vec<Entity>,
 }
 
 impl<T, Event: EventDataHolder> BehaviorManager<T, Event> {
@@ -45,6 +47,7 @@ impl<T, Event: EventDataHolder> BehaviorManager<T, Event> {
         BehaviorManager {
             behaviors: behaviors,
             family_relation: families,
+            processable: vec!(),
         }
     }
 
@@ -63,6 +66,11 @@ impl<T, Event: EventDataHolder> BehaviorManager<T, Event> {
         }
     }*/
 
+    pub fn add_processable(&mut self, ent: Entity) {
+        if self.processable.iter().find(|e| **e == ent).is_some() { return; }
+        self.processable.push(ent);
+    }
+    
     pub fn valid_behaviors_for(&self, families: Vec<&str>) -> Vec<usize> {
         let mut vec = Vec::new();
         for family in families {
@@ -75,7 +83,7 @@ impl<T, Event: EventDataHolder> BehaviorManager<T, Event> {
 #[macro_export]
 macro_rules! behaviors {
     ($t:ty:$([$behavior:ident: family: $family:ident, events: $($event:ident),*]),+) => {
-
+        use std::fmt;
         $(
             impl $crate::behavior::BehaviorData for $behavior {
                 fn family(&self) -> &'static str {
@@ -90,6 +98,12 @@ macro_rules! behaviors {
                         )
                 }
             }
+
+            impl fmt::Debug for $behavior {
+                fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                    write!(f, "{}", stringify!($behavior))
+                }
+            }
          )+
 
         #[allow(unused_assignments)]
@@ -100,7 +114,7 @@ macro_rules! behaviors {
             let mut beh_vec = Vec::new();
             let mut fam_map = HashMap::new();
             $(
-                beh_vec.push(Box::new($behavior) as Box<Behavior<World, Event>>);
+                beh_vec.push(Box::new($behavior) as Box<Behavior<$t, Event>>);
                 match fam_map.entry(stringify!($family)) {
                     Vacant(entry) => { entry.insert(vec!(idx));},
                     Occupied(entry) => { entry.into_mut().push(idx);}

@@ -38,7 +38,7 @@ use std::ops::{Deref, DerefMut};
 /// for the systems required components.
 ///
 /// Otherwise use `has_it` or a `match`.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ComponentPresence<T> {
     Comp(T),
     None
