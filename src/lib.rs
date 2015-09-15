@@ -3,6 +3,7 @@
 //! Currently used for personal use (for a roguelike game), this library is highly unstable, and a WIP.
 #![allow(dead_code)]
 #![feature(append,drain)]
+use std::iter;
 use std::collections::HashMap;
 use std::ops::{Index, IndexMut};
 use std::collections::hash_map::Entry::{Occupied, Vacant};
@@ -182,11 +183,15 @@ impl<D: EntityDataHolder> ComponentData<D> {
         self.components.insert(ent, D::new());
     }
 
-    pub fn delete_component_data_for(&mut self, ent: Entity) {
+    pub fn clear_family_data_for(&mut self, ent: Entity) {
         for family in self[ent].families() {
             self.remove_from_family(family, ent);
             debug_assert!(!self.families[family].contains(&ent))
         }
+    }
+    
+    pub fn delete_component_data_for(&mut self, ent: Entity) {
+        self.clear_family_data_for(ent);
         self.components.remove(&ent);
     }
 
@@ -257,7 +262,7 @@ impl<D: EntityDataHolder> IndexMut<Entity> for ComponentData<D> {
 pub struct EntityManager<D: EntityDataHolder, F: FamilyDataHolder> {
     next_idx: usize,
     reusable_idxs: Vec<usize>,
-    pub entities: Vec<Entity>,
+    active: Vec<bool>,
     pub data: ComponentData<D>,
     /// Contains a list of all defined families, along with its requirements.
     families: F,
@@ -270,7 +275,7 @@ impl<D: EntityDataHolder, F: FamilyDataHolder> EntityManager<D, F> {
         EntityManager{
             next_idx: 0,
             reusable_idxs: vec!(),
-            entities: vec!(),
+            active: vec!(),
             data: ComponentData::new(),
             families: F::new(),
         }
@@ -280,24 +285,35 @@ impl<D: EntityDataHolder, F: FamilyDataHolder> EntityManager<D, F> {
     pub fn new_entity(&mut self) -> Entity {
         let idx = match self.reusable_idxs.pop() {
             None => {
-                let ent = self.next_idx;
+                let idx = self.next_idx;
                 self.next_idx += 1;
-                ent
+                idx
             }
             Some(idx) => idx,
         };
 
-        let ent = idx as Entity;
-        self.entities.push(ent);
+        // Extend the vec if the idx is bigger.
+        if self.active.len() <= idx {
+            let padding = idx + 1 - self.active.len();
+            self.active.extend(iter::repeat(false).take(padding));
+            debug_assert!(self.active.len() == idx+1);
+        }
 
+        debug_assert!(!self.active[idx]);
+        self.active[idx] = true;
+        
+        let ent = idx as Entity;
         self.data.create_component_data_for(ent);
         ent
     }
 
     pub fn delete_entity(&mut self, ent: Entity) {
         let idx = ent as usize;
+        
+        assert!(self.active[idx]);
         self.reusable_idxs.push(idx);
-        self.entities.remove(idx);
+        self.active[idx] = false;
+        
         self.data.delete_component_data_for(ent);
     }
 
@@ -336,6 +352,9 @@ impl<'a, D: EntityDataHolder, C: Component<D>> ComponentAdder<'a, D,C> {
         let mut families: Vec<&str> = self.data[ent].match_families(self.families);
         families.sort();
         families.dedup();
+
+        // Clean up current component data,
+        self.data.clear_family_data_for(ent);
 
         // Give the ComponentDataHolder information about this entities families.
         for family in families.iter() {
