@@ -15,6 +15,7 @@ pub mod event;
 pub mod behavior;
 
 use family::{FamilyDataHolder, FamilyMap};
+use event::{EventDataHolder, EventManager};
 use behavior::BehaviorManager;
 /// Type Entity is simply an ID used as indexes.
 pub type Entity = u32;
@@ -307,7 +308,7 @@ impl<D: EntityDataHolder, F: FamilyDataHolder> EntityManager<D, F> {
         ent
     }
 
-    pub fn delete_entity(&mut self, ent: Entity) {
+    pub fn delete_entity<Event: event::EventDataHolder>(&mut self, ent: Entity, events: &mut EventManager<Event>) {
         let idx = ent as usize;
         
         assert!(self.active[idx]);
@@ -315,6 +316,7 @@ impl<D: EntityDataHolder, F: FamilyDataHolder> EntityManager<D, F> {
         self.active[idx] = false;
         
         self.data.delete_component_data_for(ent);
+        events.clear_events_for(ent);
     }
 
     /// Sets up for insertion of a single component.

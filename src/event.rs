@@ -101,6 +101,12 @@ impl<Holder: EventDataHolder> EventManager<Holder> {
     pub fn push_global(&mut self, holder: Holder) {
         self.global.push(holder);
     }
+
+    pub fn clear_events_for(&mut self, ent: Entity) {
+        for (_,h) in self.map.iter_mut() {
+            h.remove(&ent);
+        }
+    }
 }
 
 #[macro_export]
