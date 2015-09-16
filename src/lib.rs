@@ -308,7 +308,11 @@ impl<D: EntityDataHolder, F: FamilyDataHolder> EntityManager<D, F> {
         ent
     }
 
-    pub fn delete_entity<Event: event::EventDataHolder>(&mut self, ent: Entity, events: &mut EventManager<Event>) {
+    /// Deletes the entity, removes all data related to it.
+    ///
+    /// Returns a list of events that were related to it, in case you need to do some clean up with them.
+    pub fn delete_entity<Event>(&mut self, ent: Entity, events: &mut EventManager<Event>) -> Vec<Event>
+    where Event: event::EventDataHolder {
         let idx = ent as usize;
         
         assert!(self.active[idx]);
@@ -316,7 +320,7 @@ impl<D: EntityDataHolder, F: FamilyDataHolder> EntityManager<D, F> {
         self.active[idx] = false;
         
         self.data.delete_component_data_for(ent);
-        events.clear_events_for(ent);
+        events.clear_events_for(ent)
     }
 
     /// Sets up for insertion of a single component.

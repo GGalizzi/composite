@@ -102,10 +102,17 @@ impl<Holder: EventDataHolder> EventManager<Holder> {
         self.global.push(holder);
     }
 
-    pub fn clear_events_for(&mut self, ent: Entity) {
+    /// Removes the events related to an entity, returns them in case
+    /// the user needs to do some clean-up with those.
+    pub fn clear_events_for(&mut self, ent: Entity) -> Vec<Holder> {
+        let mut events = vec!();
         for (_,h) in self.map.iter_mut() {
-            h.remove(&ent);
+            match h.remove(&ent) {
+                Some(mut ev) => events.append(&mut ev),
+                None => {}
+            }
         }
+        events
     }
 }
 
