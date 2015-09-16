@@ -56,9 +56,15 @@ macro_rules! prototypes {
             $(
                 fn $proto(processor: &mut BehaviorManager<$t, Event>, manager: &'a mut EntityManager<EntityData, FamilyData>) -> Build<'a> {
                     let ent = manager.new_entity();
-                    $(
-                        manager.add_component($comp).to(ent, processor);
-                     )+
+                    {
+                        manager.build_ent(ent, processor)
+                        $(
+                            .add_component($comp)
+                            //manager.add_component($comp).to(ent, processor);
+                            )+
+
+                            .finalize();
+                    }
                     let ref mut ent_data = manager.data[ent];
                     Build::new(ent_data, ent)
                 }

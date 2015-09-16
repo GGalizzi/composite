@@ -323,9 +323,8 @@ impl<D: EntityDataHolder, F: FamilyDataHolder> EntityManager<D, F> {
         events.clear_events_for(ent)
     }
 
-    /// Sets up for insertion of a single component.
-    pub fn add_component<C: Component<D>>(&mut self, comp: C) -> ComponentAdder<D, C> {
-        ComponentAdder::new(comp, &mut self.data, self.families.all_families())
+    pub fn build_ent<'a, A,B: EventDataHolder>(&'a mut self, ent: Entity, processor: &'a mut BehaviorManager<A,B>) -> EntityBuilder<D,A,B> {
+        EntityBuilder::new(ent, processor, &mut self.data, self.families.all_families())
     }
 
     /// Adds the specified component to the entity.
@@ -337,42 +336,54 @@ impl<D: EntityDataHolder, F: FamilyDataHolder> EntityManager<D, F> {
 /// Used by `EntityManager` to add components to an Entity.
 ///
 /// An object of this type is obtained by calling `add_component` from an EntityManager
-pub struct ComponentAdder<'a, D: 'a + EntityDataHolder, C: Component<D>> {
-    data: &'a mut ComponentData<D>,
+pub struct EntityBuilder<'a, EntData: 'a + EntityDataHolder, T: 'a, Ev: event::EventDataHolder + 'a> {
+    data: &'a mut ComponentData<EntData>,
     families: &'a FamilyMap,
-    component: C,
+    processor: &'a mut BehaviorManager<T,Ev>,
+    ent: Entity,
 }
 
-impl<'a, D: EntityDataHolder, C: Component<D>> ComponentAdder<'a, D,C> {
+impl<'a, EntData: 'a + EntityDataHolder, T, Ev: event::EventDataHolder> EntityBuilder<'a, EntData, T, Ev> {
     
-    pub fn new(comp: C, data: &'a mut ComponentData<D>, families: &'a FamilyMap) -> ComponentAdder<'a, D,C> {
-        ComponentAdder {
+    pub fn new(ent: Entity, processor: &'a mut BehaviorManager<T,Ev>, data: &'a mut ComponentData<EntData>,
+               families: &'a FamilyMap) -> EntityBuilder<'a, EntData, T, Ev> {
+        EntityBuilder {
             data: data,
-            component: comp,
             families: families,
+            processor: processor,
+            ent: ent,
         }
     }
-    pub fn to<A,B: event::EventDataHolder>(self, ent: Entity, processor: &mut BehaviorManager<A,B>) {
-        self.component.add_to(ent, self.data);
-        
-        let mut families: Vec<&str> = self.data[ent].match_families(self.families);
+
+    pub fn add_component<Comp: Component<EntData>>(self, comp: Comp) -> EntityBuilder<'a, EntData, T, Ev> {
+        comp.add_to(self.ent, self.data);
+        self
+    }
+
+    pub fn finalize(mut self) -> Entity {
+        self.add_all_related_data();
+        self.ent
+    }
+
+    pub fn add_all_related_data(&mut self) {
+        let mut families: Vec<&str> = self.data[self.ent].match_families(self.families);
         families.sort();
         families.dedup();
 
         // Clean up current component data,
-        self.data.clear_family_data_for(ent);
+        self.data.clear_family_data_for(self.ent);
 
         // Give the ComponentDataHolder information about this entities families.
         for family in families.iter() {
-            self.data.set_family_relation(family, ent);
+            self.data.set_family_relation(family, self.ent);
         }
 
-        if !processor.valid_behaviors_for(families.clone()).is_empty() {
-            processor.add_processable(ent);
+        if !self.processor.valid_behaviors_for(families.clone()).is_empty() {
+            self.processor.add_processable(self.ent);
         }
 
         // Give this EntityDataHolder a list of which families this entity has.
-        self.data[ent].set_families(families);
+        self.data[self.ent].set_families(families);
     }
 }
 
