@@ -332,8 +332,10 @@ impl<D: EntityDataHolder, F: FamilyDataHolder> EntityManager<D, F> {
     }
 
     /// Adds the specified component to the entity.
-    pub fn add_component_to<C: Component<D>>(&mut self, e: Entity, c: C) {
-        c.add_to(e, &mut self.data);
+    pub fn add_component_to<A,B:EventDataHolder,C: Component<D>>(&mut self, e: Entity, c: C,
+                                             processor: &mut BehaviorManager<A,B>) {
+        //c.add_to(e, &mut self.data);
+        self.build_ent(e, processor).add_component(c).finalize();
     }
 }
 

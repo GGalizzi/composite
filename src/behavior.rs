@@ -84,6 +84,7 @@ impl<T, Event: EventDataHolder> BehaviorManager<T, Event> {
 macro_rules! behaviors {
     ($t:ty:$([$behavior:ident: family: $family:ident, events: $($event:ident),*]),+) => {
         use std::fmt;
+        use std::collections::HashMap;
         $(
             impl $crate::behavior::BehaviorData for $behavior {
                 fn family(&self) -> &'static str {

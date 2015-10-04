@@ -38,6 +38,7 @@ macro_rules! prototypes {
     ($t:ty[$manager:ident] $([$proto:ident: $($comp:expr),+]),+) => {
 
         use $crate::Component;
+        use $crate::behavior::BehaviorManager;
         struct Build<'a> {
             entity: $crate::Entity,
             manager: &'a mut $t,
