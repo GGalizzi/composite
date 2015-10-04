@@ -11,7 +11,7 @@ use piston::input::Event as PEvent;
 use piston::input::{Input, Button};
 use piston::event_loop::{EventLoop,Events};
 use glutin_window::GlutinWindow;
-use graphics::Rectangle;
+use graphics::{Ellipse,Rectangle};
 use opengl_graphics::{GlGraphics, OpenGL};
 
 use composite::event::EventManager;
@@ -32,11 +32,18 @@ const PADDLE_DIMENSIONS: [f64; 2] = [25.0,97.0];
 
 families!([controlled: key_input -],
           [drawable: dimensions, position -],
-          [movable: velocity, position -]);
+          [movable: velocity, position -],
+          [ball: round -],
+          [collidable: position -]);
 
 prototypes!(World[manager]
             [paddle:
              Dimensions::new(PADDLE_DIMENSIONS[0], PADDLE_DIMENSIONS[1]),
+             Position::new(),
+             Velocity::new()],
+            [ball:
+             Dimensions::new(15.0,15.0),
+             Round,
              Position::new(),
              Velocity::new()]);
 
@@ -70,7 +77,10 @@ fn main() {
 
     let player = Build::paddle(&mut processor, &mut world).at(25.0,80.0).set_as_player(&mut processor).get_id();
     Build::paddle(&mut processor, &mut world).at(725.0, 80.0);
-        
+    let ball = Build::ball(&mut processor, &mut world).at(400.0, 80.0).get_id();
+
+    ev_manager.push_for(ball, Event::ChangeVelocity(ChangeVelocity{dx:-8.0, dy:4.0}));
+    
     for e in window.events().ups(60).max_fps(60) {
         match e {
             PEvent::Input(Input::Press(Button::Keyboard(key))) => {
@@ -84,11 +94,20 @@ fn main() {
                 gl.draw(args.viewport(), |c, g| {
                     for d in world.manager.data.members_of("drawable").into_iter() {
                         let ref d = world.manager.data[d];
-                        Rectangle::new([1.0,0.0,0.0,1.0])
-                            .draw([d.position.x, d.position.y,
-                                   d.dimensions.w, d.dimensions.h],
-                                  &c.draw_state,
-                                  c.transform, g);
+
+                        if d.round.has_it() {
+                            Ellipse::new([0.0,1.0,0.0,1.0])
+                                .draw([d.position.x, d.position.y,
+                                       d.dimensions.w, d.dimensions.h],
+                                      &c.draw_state,
+                                      c.transform, g);
+                        } else {
+                            Rectangle::new([1.0,0.0,0.0,1.0])
+                                .draw([d.position.x, d.position.y,
+                                       d.dimensions.w, d.dimensions.h],
+                                      &c.draw_state,
+                                      c.transform, g);
+                        }
                     }
                 });
             }

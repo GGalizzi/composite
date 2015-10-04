@@ -37,8 +37,12 @@ impl Velocity {
     }
 }
 
+#[derive(Clone,Debug)]
+pub struct Round;
+
 #[macro_use]
 components!([position, Position],
             [dimensions, Dimensions],
+            [round, Round],
             [key_input, KeyInput],
             [velocity, Velocity]);
