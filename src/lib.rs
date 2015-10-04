@@ -313,6 +313,11 @@ impl<D: EntityDataHolder, F: FamilyDataHolder> EntityManager<D, F> {
     /// Returns a list of events that were related to it, in case you need to do some clean up with them.
     pub fn delete_entity<Event>(&mut self, ent: Entity, events: &mut EventManager<Event>) -> Vec<Event>
     where Event: event::EventDataHolder {
+        self.delete_entity_ignore_events(ent);
+        events.clear_events_for(ent)
+    }
+
+    pub fn delete_entity_ignore_events(&mut self, ent: Entity) {
         let idx = ent as usize;
         
         assert!(self.active[idx]);
@@ -320,7 +325,6 @@ impl<D: EntityDataHolder, F: FamilyDataHolder> EntityManager<D, F> {
         self.active[idx] = false;
         
         self.data.delete_component_data_for(ent);
-        events.clear_events_for(ent)
     }
 
     pub fn build_ent<'a, A,B: EventDataHolder>(&'a mut self, ent: Entity, processor: &'a mut BehaviorManager<A,B>) -> EntityBuilder<D,A,B> {

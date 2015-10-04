@@ -35,17 +35,21 @@
 /// See the [builder module documentation](/ecs/builder/) for information on this macro.
 #[macro_export]
 macro_rules! prototypes {
-    ($t:ty: $([$proto:ident: $($comp:expr),+]),+) => {
+    ($t:ty[$manager:ident] $([$proto:ident: $($comp:expr),+]),+) => {
+
+        use $crate::Component;
         struct Build<'a> {
-            data: &'a mut EntityData,
             entity: $crate::Entity,
+            manager: &'a mut $t,
         }
 
+
+
         impl<'a> Build<'a> {
-            pub fn new(data: &'a mut EntityData, ent: $crate::Entity) -> Build {
+            pub fn new(ent: $crate::Entity, manager: &'a mut $t) -> Build<'a> {
                 Build{
-                    data: data,
                     entity: ent,
+                    manager: manager,
                 }
             }
 
@@ -54,10 +58,10 @@ macro_rules! prototypes {
                 self.entity
             }
             $(
-                fn $proto(processor: &mut BehaviorManager<$t, Event>, manager: &'a mut EntityManager<EntityData, FamilyData>) -> Build<'a> {
-                    let ent = manager.new_entity();
+                fn $proto(processor: &mut BehaviorManager<$t, Event>, manager: &'a mut $t) -> Build<'a> {
+                    let ent = manager.$manager.new_entity();
                     {
-                        manager.build_ent(ent, processor)
+                        manager.$manager.build_ent(ent, processor)
                         $(
                             .add_component($comp)
                             //manager.add_component($comp).to(ent, processor);
@@ -65,10 +69,11 @@ macro_rules! prototypes {
 
                             .finalize();
                     }
-                    let ref mut ent_data = manager.data[ent];
-                    Build::new(ent_data, ent)
+                    Build::new(ent, manager)
                 }
              )+
+
+         
         }
     }
 }
