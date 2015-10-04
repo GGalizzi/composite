@@ -40,9 +40,13 @@ impl Velocity {
 #[derive(Clone,Debug)]
 pub struct Round;
 
+#[derive(Clone, Debug)]
+pub struct Ai;
+
 #[macro_use]
 components!([position, Position],
             [dimensions, Dimensions],
             [round, Round],
             [key_input, KeyInput],
+            [ai,Ai],
             [velocity, Velocity]);

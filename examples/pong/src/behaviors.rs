@@ -5,6 +5,8 @@ use composite::Entity;
 use ::world::World;
 use ::events::*;
 
+const PADDLE_VELOCITY: f64 = 5.0;
+
 struct InputBehavior;
 impl Behavior<World, Event> for InputBehavior {
     fn process(&self, events: Vec<Event>, ent: Entity, world: &mut World, ev_manager: &mut EventManager<Event>) {
@@ -14,10 +16,14 @@ impl Behavior<World, Event> for InputBehavior {
                     use piston::input::Key::*;
                     match e.key {
                         Up => {
-                            ev_manager.push_for(ent, Event::ChangeVelocity(ChangeVelocity{dx:0.0,dy:-5.0}));
+                            ev_manager.push_for(ent, Event::ChangeVelocity(ChangeVelocity{
+                                dx:0.0,dy:-PADDLE_VELOCITY
+                            }));
                         },
                         Down => {
-                            ev_manager.push_for(ent, Event::ChangeVelocity(ChangeVelocity{dx:0.0,dy:5.0}));
+                            ev_manager.push_for(ent, Event::ChangeVelocity(ChangeVelocity{
+                                dx:0.0,dy:PADDLE_VELOCITY
+                            }));
                         },
                         _ => {},
                     }
@@ -72,7 +78,33 @@ impl Behavior<World, Event> for BallCollision {
     }
 }
 
+pub struct AiBehavior;
+impl Behavior<World, Event> for AiBehavior {
+    fn process(&self, events: Vec<Event>, ent: Entity, world: &mut World, ev_manager: &mut EventManager<Event>) {
+
+        let ball = world.ball;
+
+        let dy = match ball {
+            Some(ball) => {
+                let ref ball = world.manager.data[ball];
+                if ball.velocity.dy > 0.0 {
+                    PADDLE_VELOCITY
+                } else {
+                    -PADDLE_VELOCITY
+                }
+            }
+            None => {
+                //Go to center waiting for respawn
+                0.0 // TODO
+            }
+        };
+
+        ev_manager.push_for(ent, Event::ChangeVelocity(ChangeVelocity{dx:0.0, dy:dy}));
+    }
+}
+
 behaviors!(World:
            [InputBehavior: family: controlled, events: input],
+           [AiBehavior: family: ai_controlled, events:],
            [MoveBehavior: family: movable, events: velocity],
            [BallCollision: family: ball, events:]);

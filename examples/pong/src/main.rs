@@ -31,6 +31,7 @@ const OPEN_GL: OpenGL = OpenGL::V2_1;
 const PADDLE_DIMENSIONS: [f64; 2] = [25.0,97.0];
 
 families!([controlled: key_input -],
+          [ai_controlled: ai -],
           [drawable: dimensions, position -],
           [movable: velocity, position -],
           [ball: round -],
@@ -61,6 +62,11 @@ impl<'a> Build<'a> {
         self.manager.manager.add_component_to(self.entity, components::KeyInput, processor);
         self
     }
+
+    fn set_as_ai(self, processor: &mut BehaviorManager<World,Event>) -> Self {
+        self.manager.manager.add_component_to(self.entity, components::Ai, processor);
+        self
+    }
 }
 
 fn main() {
@@ -76,10 +82,10 @@ fn main() {
     let mut processor: BehaviorManager<World, Event> = BehaviorManager::new(behavior_list());
 
     let player = Build::paddle(&mut processor, &mut world).at(25.0,80.0).set_as_player(&mut processor).get_id();
-    Build::paddle(&mut processor, &mut world).at(725.0, 80.0);
-    let ball = Build::ball(&mut processor, &mut world).at(400.0, 80.0).get_id();
+    Build::paddle(&mut processor, &mut world).at(725.0, 80.0).set_as_ai(&mut processor);
+    world.ball = Some(Build::ball(&mut processor, &mut world).at(400.0, 80.0).get_id());
 
-    ev_manager.push_for(ball, Event::ChangeVelocity(ChangeVelocity{dx:-8.0, dy:4.0}));
+    ev_manager.push_for(world.ball.unwrap(), Event::ChangeVelocity(ChangeVelocity{dx:-8.0, dy:4.0}));
     
     for e in window.events().ups(60).max_fps(60) {
         match e {

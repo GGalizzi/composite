@@ -6,11 +6,15 @@ use ::components::EntityData;
 use super::FamilyData;
 
 pub struct World {
-    pub manager: EntityManager<EntityData, FamilyData>
+    pub manager: EntityManager<EntityData, FamilyData>,
+    pub ball: Option<Entity>,
 }
 
 impl World {
     pub fn new() -> World {
-        World { manager: EntityManager::new(), }
+        World {
+            manager: EntityManager::new(),
+            ball: None,
+        }
     }
 }
