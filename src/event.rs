@@ -35,6 +35,8 @@ use std::collections::HashMap;
 use std::collections::hash_map::Entry::{Occupied, Vacant};
 
 use super::Entity;
+use super::EntityDataHolder;
+use super::ComponentData;
 
 /// Implemented automatically by the `events!` macro.
 pub trait EventDataHolder: Clone {
@@ -97,6 +99,13 @@ impl<Holder: EventDataHolder> EventManager<Holder> {
         }
     }
 
+    /// Push the given event to all entities of `family`
+    pub fn push_for_family<Data: EntityDataHolder>(&mut self, family: &'static str, data: &ComponentData<Data>, holder: Holder) {
+        for e in data.members_of(family) {
+            self.push_for(e, holder.clone());
+        }
+    }
+
     /// Pushes the given event as a global one.
     pub fn push_global(&mut self, holder: Holder) {
         self.global.push(holder);
@@ -118,15 +127,15 @@ impl<Holder: EventDataHolder> EventManager<Holder> {
 
 #[macro_export]
 macro_rules! events {
-    ($([$evtype:ident, $event:ident]),+) => {
+    ($ev_enum:ident,$([$evtype:ident, $event:ident]),+) => {
         #[derive(Debug, Clone)]
-        pub enum Event {
+        pub enum $ev_enum {
             $(
                 $event($event),
              )+
         }
 
-        impl $crate::event::EventDataHolder for Event {
+        impl $crate::event::EventDataHolder for $ev_enum {
             fn as_type(&self) -> &'static str {
                 match *self {
                     $(

@@ -15,17 +15,19 @@ pub mod event;
 pub mod behavior;
 
 use family::{FamilyDataHolder, FamilyMap};
-use event::{EventDataHolder, EventManager};
-use behavior::BehaviorManager;
+use event::{EventDataHolder};
+pub use event::EventManager;
+pub use behavior::BehaviorManager;
+pub use behavior::Behavior;
+
 /// Type Entity is simply an ID used as indexes.
 pub type Entity = u32;
-
 
 /// The components macro defines all the structs and traits that manage
 /// the component part of the ECS.
 #[macro_export]
 macro_rules! components {
-    (
+    ($data:ident:
         $([$access:ident, $ty:ty]),+
             ) => {
 
@@ -35,8 +37,7 @@ macro_rules! components {
         use $crate::family::{FamilyMap};
         use std::fmt;
 
-        #[derive(Clone)]
-        pub struct EntityData {
+        pub struct $data {
             pub components: Vec<&'static str>,
             pub families: Vec<&'static str>,
             $(
@@ -44,9 +45,9 @@ macro_rules! components {
                 )+
         }
 
-        impl EntityData {
-            pub fn new_empty() -> EntityData {
-                EntityData {
+        impl $data {
+            pub fn new_empty() -> $data {
+                $data {
                     components: Vec::new(),
                     families: Vec::new(),
                     $(
@@ -56,23 +57,23 @@ macro_rules! components {
             }
         }
 
-        impl fmt::Debug for EntityData {
+        impl fmt::Debug for $data {
             fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
                 let mut b = fmt.debug_struct("EntityData");
                 b.field("has components", &self.components);
                 b.field("belongs to families", &self.families);
-                $(
+                /*$(
                     if self.$access.has_it() {
                         b.field(stringify!($access), &self.$access);
                     }
-                 )+
+                 )+*/
                 b.finish()
             }
         }
 
-        impl EntityDataHolder for EntityData {
+        impl EntityDataHolder for $data {
             fn new() -> Self {
-                EntityData::new_empty()
+                $data::new_empty()
             }
 
             fn match_families(&self, families: &FamilyMap) -> Vec<&'static str> {
@@ -101,9 +102,9 @@ macro_rules! components {
         }
 
         $(
-            impl Component<EntityData> for $ty {
-                fn add_to(self, ent: Entity, data: &mut ComponentData<EntityData>) {
-                    let ent_data: &mut EntityData = data.components.get_mut(&ent).expect("no entity");
+            impl Component<$data> for $ty {
+                fn add_to(self, ent: Entity, data: &mut ComponentData<$data>) {
+                    let ent_data: &mut $data = data.components.get_mut(&ent).expect("no entity");
                     ent_data.components.push(stringify!($access));
                     ent_data.$access = Comp(self);
                 }

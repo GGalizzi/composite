@@ -40,15 +40,16 @@ pub fn matcher(reqs: &ReqTuple, components: &Vec<&str>) -> bool {
 /// ```
 #[macro_export]
 macro_rules! families {
-    ($([$family:ident: $($req:ident),* - $($forb:ident),*]),+) => {
+    ($data:ident:
+     $([$family:ident: $($req:ident),* - $($forb:ident),*]),+) => {
         use std::collections::HashMap;
         use $crate::family::FamilyDataHolder;
-        pub struct FamilyData {
+        pub struct $data {
             families: $crate::family::FamilyMap,
         }
 
-        impl FamilyData {
-            pub fn filled_new() -> FamilyData {
+        impl $data {
+            pub fn filled_new() -> $data {
                 let mut map = HashMap::new();
                 $(
                     let mut family_tuple = (Vec::new(), Vec::new());
@@ -62,15 +63,15 @@ macro_rules! families {
 
                     map.insert(stringify!($family), family_tuple);
                  )+
-                FamilyData {
+                $data {
                     families: map,
                 }
             }
         }
 
-        impl FamilyDataHolder for FamilyData {
-            fn new() -> FamilyData {
-                FamilyData::filled_new()
+        impl FamilyDataHolder for $data {
+            fn new() -> $data {
+                $data::filled_new()
             }
             
             fn all_families(&self) -> &$crate::family::FamilyMap {

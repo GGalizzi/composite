@@ -64,7 +64,14 @@ impl<T, Event: EventDataHolder> BehaviorManager<T, Event> {
                             event_manager);
             }
         }
-    }*/
+}*/
+
+    pub fn run(&self, idx: usize, ent: Entity, manager: &mut T, ev_manager: &mut EventManager<Event>) {
+        let ref behavior = self.behaviors[idx];
+        let relevant_events = ev_manager.for_behavior_of(behavior.events(), ent, false);
+        println!("{:?}", behavior);
+        behavior.process(relevant_events, ent, manager, ev_manager);
+    }
 
     pub fn add_processable(&mut self, ent: Entity) {
         if self.processable.iter().find(|e| **e == ent).is_some() { return; }
@@ -76,13 +83,17 @@ impl<T, Event: EventDataHolder> BehaviorManager<T, Event> {
         for family in families {
             vec.append(&mut self.family_relation.get(family).unwrap_or(&mut vec!()).clone());
         }
+        vec.sort();
         vec
     }
 }
 
 #[macro_export]
 macro_rules! behaviors {
-    ($t:ty:$([$behavior:ident: family: $family:ident, events: $($event:ident),*]),+) => {
+    (manager:$t:ty,
+     event:$ev_enum:ty,
+     list_name:$fn_name:ident,
+     $([$behavior:ident: family: $family:ident, events: $($event:ident),*]),+) => {
         use std::fmt;
         use std::collections::HashMap;
         $(
@@ -108,14 +119,14 @@ macro_rules! behaviors {
          )+
 
         #[allow(unused_assignments)]
-        pub fn behavior_list() -> (Vec<Box<Behavior<$t, Event>>>, HashMap<&'static str, Vec<usize>>) {
+        pub fn $fn_name() -> (Vec<Box<Behavior<$t, $ev_enum>>>, HashMap<&'static str, Vec<usize>>) {
             use std::collections::hash_map::Entry::{Occupied, Vacant};
 
             let mut idx = 0;
             let mut beh_vec = Vec::new();
             let mut fam_map = HashMap::new();
             $(
-                beh_vec.push(Box::new($behavior) as Box<Behavior<$t, Event>>);
+                beh_vec.push(Box::new($behavior) as Box<Behavior<$t, $ev_enum>>);
                 match fam_map.entry(stringify!($family)) {
                     Vacant(entry) => { entry.insert(vec!(idx));},
                     Occupied(entry) => { entry.into_mut().push(idx);}
