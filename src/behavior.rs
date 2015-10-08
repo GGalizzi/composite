@@ -69,7 +69,6 @@ impl<T, Event: EventDataHolder> BehaviorManager<T, Event> {
     pub fn run(&self, idx: usize, ent: Entity, manager: &mut T, ev_manager: &mut EventManager<Event>) {
         let ref behavior = self.behaviors[idx];
         let relevant_events = ev_manager.for_behavior_of(behavior.events(), ent, false);
-        println!("{:?}", behavior);
         behavior.process(relevant_events, ent, manager, ev_manager);
     }
 
