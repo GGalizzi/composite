@@ -19,6 +19,7 @@ use event::{EventDataHolder};
 pub use event::EventManager;
 pub use behavior::BehaviorManager;
 pub use behavior::Behavior;
+pub use component_presence::ComponentPresence;
 
 /// Type Entity is simply an ID used as indexes.
 pub type Entity = u32;
@@ -51,7 +52,7 @@ macro_rules! components {
                     components: Vec::new(),
                     families: Vec::new(),
                     $(
-                        $access: None,
+                        $access: Lacks,
                         )+
                 }
             }
@@ -106,7 +107,7 @@ macro_rules! components {
                 fn add_to(self, ent: Entity, data: &mut ComponentData<$data>) {
                     let ent_data: &mut $data = data.components.get_mut(&ent).expect("no entity");
                     ent_data.components.push(stringify!($access));
-                    ent_data.$access = Comp(self);
+                    ent_data.$access = Has(self);
                 }
             }
             )+

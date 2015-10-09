@@ -40,8 +40,8 @@ use std::ops::{Deref, DerefMut};
 /// Otherwise use `has_it` or a `match`.
 #[derive(Debug, Clone)]
 pub enum ComponentPresence<T> {
-    Comp(T),
-    None
+    Has(T),
+    Lacks
 }
 
 use self::ComponentPresence::*;
@@ -53,31 +53,31 @@ impl<T> ComponentPresence<T> {
     #[inline]
     pub fn unwrap(&mut self) -> &mut T {
         match *self {
-            Comp(ref mut c) => c,
-            None => panic!("called ComponentPresence::unwrap on a None value"),
+            Has(ref mut c) => c,
+            Lacks => panic!("called ComponentPresence::unwrap on a None value"),
         }
     }
         
     #[inline]
     pub fn as_ref(&self) -> ComponentPresence<&T> {
         match *self {
-            Comp(ref c) => Comp(c),
-            None => None,
+            Has(ref c) => Has(c),
+            Lacks => Lacks,
         }
     }
     #[inline]
     pub fn as_mut(&mut self) -> ComponentPresence<&mut T> {
         match *self {
-            Comp(ref mut c) => Comp(c),
-            None => None,
+            Has(ref mut c) => Has(c),
+            Lacks => Lacks,
         }
     }
 
     #[inline]
     pub fn has_it(&self) -> bool {
         match *self {
-            Comp(_) => true,
-            None => false,
+            Has(_) => true,
+            Lacks => false,
         }
     }
 
@@ -92,8 +92,8 @@ impl<T> Deref for ComponentPresence<T> {
 
     fn deref<'a>(&'a self) -> &'a T {
         match *self {
-            Comp(ref c) => c,
-            None => panic!("Lacks component"),
+            Has(ref c) => c,
+            Lacks => panic!("Lacks component"),
         }
     }
 }
@@ -101,8 +101,8 @@ impl<T> Deref for ComponentPresence<T> {
 impl<T> DerefMut for ComponentPresence<T> {
     fn deref_mut<'a>(&'a mut self) -> &'a mut T {
         match *self {
-            Comp(ref mut c) => c,
-            None => panic!("Lacks component"),
+            Has(ref mut c) => c,
+            Lacks => panic!("Lacks component"),
         }
     }
 }
